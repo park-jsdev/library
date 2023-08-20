@@ -1,0 +1,388 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+# Chickadee Data Statistical Analysis
+
+## TRU 4001 - Biostatistics - Final Project
+
+## Introduction
+
+This is a personal notebook which accompanies the final project for Thompson Rivers University's Biology 4001, Biostatistics taught by Professor Iain Pardoe. The submission is a report which in the style of a research paper in biology.
+
+This notebook includes the task requirements, as well as other statistical techniques which may be useful to carry out and document. The notebook shall serve as a general guideline and template for statistical analyses for future work.
+
+## 1. Problem Definition
+
+### Problem Space
+
+Data from nest boxes at 47 mountain chickadee sites was collected to examine microbial community compositions associated with chickadees in urban, semi-urban, and rural environments. DNA sequencing was used to determine the relative abundance of different microbial taxa present in swabs from either chickadee nests or feathers in nest boxes in these three habitat types. Nest boxes were set up to encourage nesting in the sample sites. For the feather data, physical characteristics of the birds were recorded. The data was also used to determine two different measures of microbial species richness (alpha diversity) at each site.
+
+### Type of Problem
+
+-   Determine whether the problem is a descriptive study, hypothesis testing, estimation, prediction, etc.
+
+There are various problems in this task, including descriptive studies, hypothesis testing, estimation, and prediction.
+
+### Task/Question/Hypothesis
+
+-   Clearly Define the questions to be answered or the hypotheses to be tested.
+
+    #### (Graded)
+
+    \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\--
+
+-   Summarize the data in **`ChickadeeData.csv`** numerically.
+
+```{=html}
+<!-- -->
+```
+-   Summarize the data in **`ChickadeeData.csv`** graphically.
+
+```{=html}
+<!-- -->
+```
+-   Use a two-sample *t*-test to determine whether the mean abundance of bacteria identified as genus *Escherichia/Shigella* differs significantly between nests and feathers. [Consider transforming variable **`EscShi`** and use R function **`t.test`**. Be careful when applying the natural logarithm transformation to data containing zeros since ln(0) is undefined. The usual way around this is to calculate ln(y+1) instead of ln(y).]
+
+-   Use a Mann-Whitney U-test (Wilcoxon rank sum test) to determine whether the population distribution of the abundance of bacteria identified as genus *Escherichia/Shigella* differs significantly between nests and feathers. [Use R function **`wilcox.test`**.]
+
+-   Use a two-sample *t*-test to determine whether the mean abundance of bacteria identified as genus *Enterococcus* differs significantly between nests and feathers. [Consider transforming variable **`Entero`** and use R function **`t.test`**.]
+
+-   Use a Mann-Whitney U-test (Wilcoxon rank sum test) to determine whether the population distribution of the abundance of bacteria identified as genus *Enterococcus* differs significantly between nests and feathers. [Use R function **`wilcox.test`**.]
+
+-   Use analysis of variance to determine whether mean pathogen richness is related to habitat. [Use R functions **`lm`** and **`anova`**.]
+
+-   Use a Kruskal-Wallis test to determine whether mean pathogen richness is related to habitat. [Use R function **`kruskal.test`**.]
+
+-   Use the Tukey-Kramer method to which habitats differ with respect to mean pathogen richness. [Use R functions **`emmeans`** and **`contrast`**.]
+
+-   Use contingency table analysis to determine whether community richness on feathers is independent of mountain chickadees sex? [Use R function **`filter`** in the **`dplyr`** package to subset the data frame to retain only feather swabs, then use R functions **`table`** and **`chisq.test`**.]
+
+-   Use simple linear regression to determine which of **`WingChord`**, **`BirdWeight`**, **`TailLen`**, or **`TarsusLen`** is most linearly associated with pathogen richness on feathers. [Use R functions **`lm`** and **`summary`**.]
+
+-   For the simple linear regression model selected in Question 11, investigate whether there are any outliers. An outlier in the context of linear regression is an observation with an extreme difference between the observed response value and the predicted response value from the model. Use the **`filter`** function to create a new data frame that excludes the most extreme outlier and refit the simple linear regression model. Report the results for the model fit to the data frame excluding the outlier and use this data frame to answer Questions 13-18.
+
+-   Find the best multiple linear regression model for predicting pathogen richness on feathers from two predictors out of **`WingChord`**, **`BirdWeight`**, **`TailLen`**, and **`TarsusLen`**. [Use R functions **`lm`** and **`summary`**.]
+
+-   Use a two-sample *t*-test to determine whether mean pathogen richness on feathers differs significantly between male and female birds. [Use R function **`t.test`**.]
+
+-   Starting from the simple linear regression model in Question 12, use analysis of covariance to investigate whether the linear association in the model differs for male and female birds. [Use R functions **`lm`** and **`summary`**.]
+
+-   Apply principal component analysis to the variables **`WingChord`**, **`BirdWeight`**, **`TailLen`**, and **`TarsusLen`**. [Use R functions **`scale`**, **`prcomp`**, and **`summary`**. Also, summarize the principal component loadings and use R function **`fviz_pca_ind`** with argument **`habillage`** to visualize the results and colour the observations by bird sex.]
+
+-   Fit a simple linear regression model with response variable **`PathRich`** and predictor variable equal to the first principal component from Question 16. Compare this model with the simple linear regression model in Question 12. [Use R functions **`lm`** and **`summary`**.]
+
+-   Fit a multiple linear regression model with response variable **`PathRich`** and predictor variables equal to the first two principal components from Question 16. Compare this model with the multiple linear regression model in Question 13. [Use R functions **`lm`** and **`summary`**.]
+
+-   Apply metric multidimensional scaling (MDS) to the dissimilarities data in the **`ChickadeeDissimilarities.csv`** file. [Use R function **`cmdscale`** to perform the metric MDS and use function **`ggplot`** to create a scatterplot that projects the data onto the first two principal coordinates. Then use the **`shape`** aesthetic to first mark the points by **`Habitat`** and then by **`Source`**.] Does the composition of the microbial communities appear to be related to **`Habitat`** or **`Source`**?
+
+-   Apply nonmetric multidimensional scaling (NMDS) to the dissimilarities data in the **`ChickadeeDissimilarities.csv`** file. [Use R function **`metaMDS`** to perform the NMDS and use function **`ggplot`** to create a scatterplot that projects the data onto the first two NMDS axes. Then use the **`shape`** aesthetic to first mark the points by **`Habitat`** and then by **`Source`**.] Does the composition of the microbial communities appear to be related to **`Habitat`** or **`Source`**?
+
+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\--
+
+## 2. Data Collection and Preprocessing
+
+### Data Source
+
+-   Identify the sources of data, whether it is from an experiment, survey, existing dataset, etc.
+
+The data in the **`ChickadeeData.csv`** file consist of the following variables:
+
+-   **`Site`** = Name of the site
+
+-   **`Habitat`** = Whether the nest box is in an urban, semi-urban, or rural habitat
+
+-   **`Source`** = Whether the swab was taken from a nest or a feather
+
+-   **`EscShi`** = Abundance of pathogenic bacteria identified as genus *Escherichia/Shigella*
+
+-   **`Entero`** = Abundance of pathogenic bacteria identified as genus *Enterococcus*
+
+-   **`CommRich`** = Categorical measure of alpha diversity equal to \"high\" if the number of unique bacterial species present in the swab exceeds 400, or equal to \"low\" otherwise
+
+-   **`PathRich`** = Quantitative measure of alpha diversity equal to the number of unique potentially pathogenic bacteria species present in the swab
+
+-   **`WingChord`** = Measure of bird wing size (for feather swabs only)
+
+-   **`BirdWeight`** = Measure of bird weight (for feather swabs only)
+
+-   **`TailLen`** = Measure of bird tail length (for feather swabs only)
+
+-   **`TarsusLen`** = Measure of bird tarsus length (for feather swabs only)
+
+-   **`BirdSex`** = Sex of the bird (for feather swabs only)
+
+Microbial community composition data for 2607 taxa was also used to calculate Bray Curtis dissimilarities between the 47 sites; these are in the **`ChickadeeDissimilarities.csv`** file.
+
+### Data Cleaning
+
+-   Preprocess the data to handle missing values, outliers, or other anomalies.
+
+As the dataset was provided as an assignment, no preprocessing is required. However, let us do a basic check for null values:
+
+```{r}
+# Read the data
+chickadeeData <- read.csv("ChickadeeData.csv")
+dissimilaritiesData <- read.csv("ChickadeeDissimilarities.csv")
+
+# Check for Missing Data in the Entire Dataset
+sum(is.na(chickadeeData))
+
+# Check for Missing Data Column-wise
+colSums(is.na(chickadeeData))
+
+# Check for Missing Data Row-wise
+rowSums(is.na(chickadeeData))
+
+# Visualizing Missing Data
+library(visdat)
+vis_miss(chickadeeData)
+
+
+# Now for dissimilarities data
+
+# Check for Missing Data in the Entire Dataset
+sum(is.na(dissimilaritiesData))
+
+# Check for Missing Data Column-wise
+colSums(is.na(dissimilaritiesData))
+
+# Check for Missing Data Row-wise
+rowSums(is.na(dissimilaritiesData))
+
+# Visualizing Missing Data
+vis_miss(dissimilaritiesData)
+
+```
+
+It appears that 15.1% of the chickadee dataset is missing, while there is no null data in the dissimilarities dataset.
+
+For now, we will leave it as we develop a better understanding of the data and the problem.
+
+### Experimental Design Considerations
+
+-   Designing Effective Experiments: consider (a) reducing bias in estimating and testing treatment effects, and (b) reducing the effects of sampling error.
+
+-   Topics in experimental design include randomized controlled trials, control groups, treatment groups, and experimental controls.
+
+-   Reduce bias: Use Simultaneous control group, randomization, and blinding.
+
+-   Reduce the influence of sampling error: Replication, balance, blocking, and extreme treatments.
+
+-   If you can't do experiments: Match and adjust.
+
+-   Sample size: Plan for precision, power, and data loss.
+
+### Feature Engineering
+
+-   Deriving new variables that might be relevant for analysis.
+
+### Data Transformation
+
+-   Such as normalization, standardization, or logarithmic transformation if required.
+
+## 3. Exploratory Data Analysis
+
+-   Exploratory Data Analysis (EDA) is an essential step in understanding the data, identifying patterns, spotting anomalies, and developing an intuition about the relationships between variables.
+
+### Setup
+
+```{r}
+# setwd("C:\\Users\\JP\\Desktop\\RECENT\\Biology\\BIOL 4001 - Biostatistics\\Final")
+library(ggplot2)
+library(dplyr)
+library(emmeans)
+library(GGally)
+library(factoextra)
+library(ggrepel)
+library(vegan)
+theme_set(theme_classic())
+
+```
+
+### Summary Statistics
+
+-   Measures of Central Tendency: Mean, median, and mode.
+
+-   Measures of Spread: Variance, standard deviation, range, interquartile range (IQR).
+
+-   Measures of Shape: Skewness (asymmetry) and kurtosis (tailedness).
+
+-   Percentiles: Quantiles including the quartiles.
+
+-   Correlation: Correlation coefficients to measure linear relationships between variables.
+
+-   Summarize the data in **`ChickadeeData.csv`** numerically.
+
+```{r}
+# Summarize data
+summary(chickadeeData)
+head(chickadeeData)
+
+```
+
+### Visualizations
+
+-   Histograms: To understand the distribution of a single variable.
+
+-   Scatter Plots: To visualize relationships between two continuous variables.
+
+-   Box Plots: To see the spread and skewness across categories.
+
+-   Heatmaps: For visualizing correlation matrices or two-way frequency tables.
+
+-   Pair Plots: A set of scatter plots for all pairs of variables to see relationships and distributions.
+
+-   Time Series Plots: If the data is a time series, to visualize trends and seasonality.
+
+-   Summarize the data in **`ChickadeeData.csv`** graphically.
+
+```{r}
+```
+
+### Dimensionality Reduction
+
+-   Techniques like t-SNE in addition to PCA, especially for visualizing high-dimensional data.
+
+### Other Techniques
+
+-   Missing Value Analysis: Identifying and analyzing missing data.
+
+-   Outlier Detection: Methods to detect and analyze unusual observations.
+
+-   Categorical Data Analysis: Frequency tables, bar charts, pie charts for categorical variables.
+
+-   Multivariate Analysis: Techniques like Principal Component Analysis (PCA) to understand the relationships among multiple variables.
+
+-   Cross-Tabulations: Also known as contingency tables; useful for understanding the relationship between two categorical variables.
+
+-   Spatial Analysis: If the data has geographical attributes, spatial visualization, and analysis might be essential.
+
+-   Text Analysis: If the dataset contains text, basic text mining techniques might be applicable.
+
+### Initial Tests
+
+-   Normality Tests: Checking if a variable follows a normal distribution.
+
+-   Homogeneity of Variances: Testing if the variances are equal across groups.
+
+### Relationships
+
+-   Covariance: Understanding how two variables change together.
+
+-   Regression Plots: Simple linear regression to visually understand relationships.
+
+### Contingency Analysis
+
+-   Association: Understanding if there is an association between the categories of different variables.
+
+-   Independence Testing: Statistical tests like the Chi-Squared Test for Independence can be applied to contingency tables to determine if there is a significant association between the variables.
+
+-   Conditional Probabilities: You can calculate conditional probabilities to understand how the probability of one event changes given the knowledge of another event.
+
+-   Comparison Across Groups: If you have more than two categorical variables, you can explore how the relationship between two variables may differ across the levels of a third variable.
+
+-   Marginal Distribution: You can analyze the marginal distribution of one variable irrespective of the others. This gives insights into the overall distribution of a particular variable.
+
+-   Expected Frequencies: In some cases, you might want to compare observed frequencies in the contingency table with expected frequencies under some statistical model. This can give insights into how well a given model fits your data.
+
+## 4. Model Specification
+
+### Statistical Model
+
+-   Choose an appropriate statistical model that aligns with the type of data and research question.
+
+### Estimator
+
+-   Decide on the method of estimation (e.g., Maximum Likelihood, Least Squares, etc.).
+
+### Hyperparameters
+
+-   If you're working with models that require hyperparameter tuning, choose the appropriate values or ranges and methods (like grid search or random search).
+
+## 5. Statistical Inference - Hypothesis Testing (if applicable)
+
+### Null and Alternative Hypotheses
+
+-   Define the hypotheses to be tested.
+
+### Test Statistic
+
+-   Decide on the level of significance (e.g., α = 0.05).
+
+### P-value
+
+-   Compute the p-value to determine statistical significance.
+
+### Conclusion
+
+-   Make a decision to accept or reject the null hypothesis based on the p-value.
+
+## 6. Statistical Inference - Estimation (if applicable)
+
+### Point Estimation
+
+-   Compute a single value that estimates the parameter of interest.
+
+### Interval Estimation
+
+-   Compute a confidence interval that contains the parameter with a specific level of confidence.
+
+## 7. Model Validation
+
+### Assumptions Checking
+
+-   Check whether the assumptions of the chosen model are met.
+
+### Goodness-of-fit
+
+-   Evaluate how well the model fits the data.
+
+### Residual Analysis
+
+-   Analyze residuals to understand the variance unexplained by the model.
+
+### Cross-Validation
+
+-   Use techniques like k-fold cross-validation to ensure model stability and to prevent overfitting.
+
+## 8. Interpretation
+
+### Prediction
+
+-   How will predictions be generated, validated, and used?
+
+### Results Interpretation
+
+-   Interpret the results in the context of the problem.
+
+### Limitations
+
+-   Discuss any limitations or assumptions in the analysis.
+
+## 9. Communcation
+
+### Report Writing
+
+-   Write a clear and concise report or paper that details the analysis.
+
+### Visualization Tools
+
+-   Depending on the audience, create interactive dashboards or other visualization tools to make results accessible and understandable.
+
+### Presentation
+
+-   Present the findings to stakeholders or peers.
+
+## 10. Ethical Considerations
+
+-   Always ensure that the data and methods used adhere to ethical standards, especially if the data contains personal information. Consider privacy, consent, potential biases in the data, and the implications of your analysis and predictions.
+
+## References
+
+1.  www.tru.ca, Thompson Rivers University. "BIOL 4001: Biostatistics." *Thompson Rivers University*, <http://www.tru.ca/distance/courses/biol4001.html.> Accessed 20 Aug. 2023.
+
+2.  *Introduction to R*. <https://www.zoology.ubc.ca/~bio501/R/workshops/workshops-intro.html.> Accessed 20 Aug. 2023.
+
+3.  *Resources for The Analysis of Biological Data*. <https://whitlockschluter3e.zoology.ubc.ca/index.html.> Accessed 20 Aug. 2023.
