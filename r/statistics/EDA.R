@@ -10,11 +10,17 @@ df <- read.csv("data.csv")
 summary(df)
 head(df)
 
+# See column names
+names(df)
+
 # See unique values of a col in a dataframe
 unique(df$col)
 
 # See how many times unique value appears in a column
 table(df$col)
+
+# Detailed summary of dataframe
+str(df)
 
 
 # R DataFrames
@@ -45,3 +51,9 @@ df[1,]  # Accesses the first row
 
 df[1, "column1"]  # Accesses the first row of 'column1'
 
+
+# Summary Statistics
+
+
+
+# Visualizations

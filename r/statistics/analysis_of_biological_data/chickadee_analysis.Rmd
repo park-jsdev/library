@@ -3,7 +3,7 @@ title: "R Notebook"
 output: html_notebook
 ---
 
-# Chickadee Data Statistical Analysis
+# Chickadee Pathogen Data Statistical Analysis
 
 ## TRU 4001 - Biostatistics - Final Project
 
@@ -18,6 +18,8 @@ This notebook includes the task requirements, as well as other statistical techn
 ### Problem Space
 
 Data from nest boxes at 47 mountain chickadee sites was collected to examine microbial community compositions associated with chickadees in urban, semi-urban, and rural environments. DNA sequencing was used to determine the relative abundance of different microbial taxa present in swabs from either chickadee nests or feathers in nest boxes in these three habitat types. Nest boxes were set up to encourage nesting in the sample sites. For the feather data, physical characteristics of the birds were recorded. The data was also used to determine two different measures of microbial species richness (alpha diversity) at each site.
+
+From the description, it appears that we are interested in microbial community compositions, particularly pathogenic bacteria species, and their relationship with features of mountain chickadees.
 
 ### Type of Problem
 
@@ -35,14 +37,10 @@ There are various problems in this task, including descriptive studies, hypothes
 
 -   Summarize the data in **`ChickadeeData.csv`** numerically.
 
-```{=html}
-<!-- -->
-```
 -   Summarize the data in **`ChickadeeData.csv`** graphically.
 
-```{=html}
-<!-- -->
-```
+\-\-\-\-\--
+
 -   Use a two-sample *t*-test to determine whether the mean abundance of bacteria identified as genus *Escherichia/Shigella* differs significantly between nests and feathers. [Consider transforming variable **`EscShi`** and use R function **`t.test`**. Be careful when applying the natural logarithm transformation to data containing zeros since ln(0) is undefined. The usual way around this is to calculate ln(y+1) instead of ln(y).]
 
 -   Use a Mann-Whitney U-test (Wilcoxon rank sum test) to determine whether the population distribution of the abundance of bacteria identified as genus *Escherichia/Shigella* differs significantly between nests and feathers. [Use R function **`wilcox.test`**.]
@@ -99,7 +97,7 @@ The data in the **`ChickadeeData.csv`** file consist of the following variables:
 
 -   **`Entero`** = Abundance of pathogenic bacteria identified as genus *Enterococcus*
 
--   **`CommRich`** = Categorical measure of alpha diversity equal to \"high\" if the number of unique bacterial species present in the swab exceeds 400, or equal to \"low\" otherwise
+-   **`CommRich`** = Categorical measure of alpha diversity equal to "high" if the number of unique bacterial species present in the swab exceeds 400, or equal to "low" otherwise
 
 -   **`PathRich`** = Quantitative measure of alpha diversity equal to the number of unique potentially pathogenic bacteria species present in the swab
 
@@ -186,6 +184,14 @@ For now, we will leave it as we develop a better understanding of the data and t
 
 -   Exploratory Data Analysis (EDA) is an essential step in understanding the data, identifying patterns, spotting anomalies, and developing an intuition about the relationships between variables.
 
+### Data Inspection
+
+-   The first step should be to open and inspect the dataset (even in a spreadsheet). View the first few lines and familiarize yourself with the variable names.
+
+-   A good first goal is to find a plot type that clearly and efficiently visualizes the patterns in the data, especially the differences among groups.
+
+Let us open and inspect the data in excel, to get a first glance. The variables and the data are already described in the assignment.
+
 ### Setup
 
 ```{r}
@@ -220,6 +226,22 @@ theme_set(theme_classic())
 summary(chickadeeData)
 head(chickadeeData)
 
+# See column names
+names(chickadeeData)
+
+# Check unique values of a specific column
+unique(chickadeeData$Source)
+
+# Detailed summary of dataframe
+str(chickadeeData)
+
+# Use a table to display categorical variable
+chickadeeTableEscShi <- table(chickadeeData$EscShi)
+chickadeeTableEscShi
+
+chickadeeTableEntero <- table(chickadeeData$Entero)
+chickadeeTableEntero
+
 ```
 
 ### Visualizations
@@ -239,6 +261,84 @@ head(chickadeeData)
 -   Summarize the data in **`ChickadeeData.csv`** graphically.
 
 ```{r}
+
+# Factor the categorical only
+
+# Factor pathogen data variables
+# EscShi
+chickadeeData$EscShi_ordered <- factor(chickadeeData$EscShi,
+  levels = names(sort(chickadeeTableEscShi,
+                 decreasing = TRUE)))
+
+table(chickadeeData$EscShi_ordered)
+
+# Entero
+chickadeeData$Entero_ordered <- factor(chickadeeData$Entero,
+  levels = names(sort(chickadeeTableEntero,
+                 decreasing = TRUE)))
+
+table(chickadeeData$Entero_ordered)
+
+# Visualize frequency distributions of single variables
+# Bar charts for large counts
+
+# Histograms for phenotypes
+
+# Use other plots two compare 2 variables
+
+# Use line graphs for comparing 2 continuous variables
+
+
+# Bar Charts - unfactored
+ggplot(data = chickadeeData, aes(x = EscShi)) +
+geom_bar(stat = "count") +
+labs(x = "Pathogen Abundance", y = "Frequency") +
+theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+ggplot(data = chickadeeData, aes(x = Entero)) +
+geom_bar(stat = "count") +
+labs(x = "Pathogen Abundance", y = "Frequency") +
+theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+ggplot(data = chickadeeData, aes(x = CommRich)) +
+geom_bar(stat = "count") +
+labs(x = "Pathogen Diversity Categorical", y = "Frequency") +
+theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+# Histogram - PathRich
+ggplot(data = chickadeeData, aes(x = PathRich)) +
+geom_histogram(col = "black", binwidth = 2,
+boundary = 0, closed = "left") +
+labs(x = "Pathogen Diversity", y = "Frequency")
+
+# Contingency Table - EscShi and Site
+chickadeeEscShiTable <- table (chickadeeData$EscShi, chickadeeData$Habitat)
+chickadeeEscShiTable
+addmargins(chickadeeEscShiTable, margin = c(1,2), FUN = sum, quiet = TRUE)
+
+# Grouped Bar Graph
+ggplot(chickadeeData, aes(x = Habitat, fill = EscShi)) +
+geom_bar(stat = "count", position = position_dodge2(preserve="single")) +
+labs(x = "Habitat", y = "EscShi Abundance")
+
+# Mosaic Plot
+mosaicplot(t(chickadeeEscShiTable), sub = "Habitat",
+ylab = "EscShi Abundance", main = "")
+
+# Scatter Plot
+ggplot(data = chickadeeData,
+aes(x = Habitat, y = EscShi)) +
+geom_point(size = 2) +
+labs(x = "Habitat", y = "EscShi Abundance")
+
+# Strip Chart
+
+# Violin Plot
+
+# Multiple histograms
+
+# Summary Statistics by Group
+
 ```
 
 ### Dimensionality Reduction
