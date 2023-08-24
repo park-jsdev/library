@@ -39,7 +39,7 @@ There are various problems in this task, including descriptive studies, hypothes
 
 -   Summarize the data in **`ChickadeeData.csv`** graphically.
 
-\-\-\-\-\--
+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\--
 
 -   Use a two-sample *t*-test to determine whether the mean abundance of bacteria identified as genus *Escherichia/Shigella* differs significantly between nests and feathers. [Consider transforming variable **`EscShi`** and use R function **`t.test`**. Be careful when applying the natural logarithm transformation to data containing zeros since ln(0) is undefined. The usual way around this is to calculate ln(y+1) instead of ln(y).]
 
@@ -203,6 +203,7 @@ library(GGally)
 library(factoextra)
 library(ggrepel)
 library(vegan)
+library(Hmisc)
 theme_set(theme_classic())
 
 ```
@@ -218,6 +219,8 @@ theme_set(theme_classic())
 -   Percentiles: Quantiles including the quartiles.
 
 -   Correlation: Correlation coefficients to measure linear relationships between variables.
+
+-   Summary Statistics by Group.
 
 -   Summarize the data in **`ChickadeeData.csv`** numerically.
 
@@ -235,7 +238,10 @@ unique(chickadeeData$Source)
 # Detailed summary of dataframe
 str(chickadeeData)
 
-# Use a table to display categorical variable
+# Summarize each variable using Hmisc
+describe(chickadeeData)
+
+# Use a table to display example categorical variable
 chickadeeTableEscShi <- table(chickadeeData$EscShi)
 chickadeeTableEscShi
 
@@ -280,66 +286,110 @@ chickadeeData$Entero_ordered <- factor(chickadeeData$Entero,
 table(chickadeeData$Entero_ordered)
 
 # Visualize frequency distributions of single variables
-# Bar charts for large counts
 
-# Histograms for phenotypes
+# Bar charts for categorical variables
 
-# Use other plots two compare 2 variables
-
-# Use line graphs for comparing 2 continuous variables
-
-
-# Bar Charts - unfactored
-ggplot(data = chickadeeData, aes(x = EscShi)) +
+# Habitat
+ggplot(data = chickadeeData, aes(x = Habitat)) +
 geom_bar(stat = "count") +
-labs(x = "Pathogen Abundance", y = "Frequency") +
+labs(x = "Habitat", y = "Frequency") +
 theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
-ggplot(data = chickadeeData, aes(x = Entero)) +
+# Source
+ggplot(data = chickadeeData, aes(x = Source)) +
 geom_bar(stat = "count") +
-labs(x = "Pathogen Abundance", y = "Frequency") +
+labs(x = "Source", y = "Frequency") +
 theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
+# CommRich
 ggplot(data = chickadeeData, aes(x = CommRich)) +
 geom_bar(stat = "count") +
-labs(x = "Pathogen Diversity Categorical", y = "Frequency") +
+labs(x = "Alpha Diversity", y = "Frequency") +
 theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
-# Histogram - PathRich
-ggplot(data = chickadeeData, aes(x = PathRich)) +
-geom_histogram(col = "black", binwidth = 2,
+# BirdSex
+ggplot(data = chickadeeData, aes(x = BirdSex)) +
+geom_bar(stat = "count") +
+labs(x = "Sex", y = "Frequency") +
+theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+# Histograms for numerical variables
+
+# EscShi
+ggplot(data = chickadeeData, aes(x = EscShi)) +
+geom_histogram(col = "black", binwidth = 50,
 boundary = 0, closed = "left") +
-labs(x = "Pathogen Diversity", y = "Frequency")
+labs(x = "EscShi", y = "Frequency")
 
-# Contingency Table - EscShi and Site
-chickadeeEscShiTable <- table (chickadeeData$EscShi, chickadeeData$Habitat)
-chickadeeEscShiTable
-addmargins(chickadeeEscShiTable, margin = c(1,2), FUN = sum, quiet = TRUE)
+# Entero
+ggplot(data = chickadeeData, aes(x = Entero)) +
+geom_histogram(col = "black", binwidth = 10,
+boundary = 0, closed = "left") +
+labs(x = "Entero", y = "Frequency")
 
-# Grouped Bar Graph
-ggplot(chickadeeData, aes(x = Habitat, fill = EscShi)) +
-geom_bar(stat = "count", position = position_dodge2(preserve="single")) +
-labs(x = "Habitat", y = "EscShi Abundance")
+# PathRich
+ggplot(data = chickadeeData, aes(x = PathRich)) +
+geom_histogram(col = "black", binwidth = 4,
+boundary = 0, closed = "left") +
+labs(x = "Alpha Diversity", y = "Frequency")
 
-# Mosaic Plot
-mosaicplot(t(chickadeeEscShiTable), sub = "Habitat",
-ylab = "EscShi Abundance", main = "")
+# WingChord
+ggplot(data = chickadeeData, aes(x = WingChord)) +
+geom_histogram(col = "black", binwidth = 1,
+boundary = 0, closed = "left") +
+labs(x = "Wing Size", y = "Frequency")
 
-# Scatter Plot
-ggplot(data = chickadeeData,
-aes(x = Habitat, y = EscShi)) +
-geom_point(size = 2) +
-labs(x = "Habitat", y = "EscShi Abundance")
+# BirdWeight
+ggplot(data = chickadeeData, aes(x = BirdWeight)) +
+geom_histogram(col = "black", binwidth = 0.5,
+boundary = 0, closed = "left") +
+labs(x = "Weight", y = "Frequency")
+
+# TailLen
+ggplot(data = chickadeeData, aes(x = TailLen)) +
+geom_histogram(col = "black", binwidth = 1,
+boundary = 0, closed = "left") +
+labs(x = "Tail Length", y = "Frequency")
+
+# TarsusLen
+ggplot(data = chickadeeData, aes(x = TarsusLen)) +
+geom_histogram(col = "black", binwidth = 0.2,
+boundary = 0, closed = "left") +
+labs(x = "Tarsus Length", y = "Frequency")
+
+
+
+# Relationship between 2 variables
+
+# Box Plot for numerical variable vs categorical variable
+ggplot(chickadeeData, aes(x=BirdSex, y=TarsusLen)) + geom_boxplot()
+
+# Scatter Plots
+ggplot(chickadeeData,   
+  aes(x = BirdWeight, 
+  y = EscShi)) +
+  geom_point()
+
+ggplot(chickadeeData,   
+  aes(x = TarsusLen, 
+  y = PathRich)) +
+  geom_point()
 
 # Strip Chart
+ggplot (data = chickadeeData, aes(x = WingChord, y = Entero)) +
+geom_jitter(shape = 1, size = 2, width = 0.15) +
+labs(x = "Wing Size", y = "Entero")
 
 # Violin Plot
+ggplot(data = chickadeeData, aes(y = BirdWeight, x = TailLen)) +
+geom_violin() +
+labs(x = "Tail Length", y = "BirdWeight") +
+stat_summary(fun = mean, geom = "point")
 
-# Multiple histograms
-
-# Summary Statistics by Group
 
 ```
+
+Some initial exploration of the variables have given us some familiarity with the dataset.
 
 ### Dimensionality Reduction
 
