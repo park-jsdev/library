@@ -1,9 +1,13 @@
-# This test will convert the two file's contents to sha256, and compare the checksums to see if there is any difference in the contents
+# This script will test the data integrity of two files, intended to be used on exports of two queries.
+# It will convert the two file's contents to sha256, and compare the checksums to see if there is any difference in the contents
 
 # Usage:
 # 1. Make sure pytest is installed: 'pip install pytest'
 # 2. Change paths to desired files
 # 3. Run pytest export_checksum.py
+
+# Considerations:
+# - If the exports are from different sources, and an initial check shows equal row counts, consider sorting the file contents first (Notepad++ offers such an option)
 
 import hashlib
 
