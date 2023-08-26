@@ -39,8 +39,6 @@ There are various problems in this task, including descriptive studies, hypothes
 
 -   Summarize the data in **`ChickadeeData.csv`** graphically.
 
-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\--
-
 -   Use a two-sample *t*-test to determine whether the mean abundance of bacteria identified as genus *Escherichia/Shigella* differs significantly between nests and feathers. [Consider transforming variable **`EscShi`** and use R function **`t.test`**. Be careful when applying the natural logarithm transformation to data containing zeros since ln(0) is undefined. The usual way around this is to calculate ln(y+1) instead of ln(y).]
 
 -   Use a Mann-Whitney U-test (Wilcoxon rank sum test) to determine whether the population distribution of the abundance of bacteria identified as genus *Escherichia/Shigella* differs significantly between nests and feathers. [Use R function **`wilcox.test`**.]
@@ -48,6 +46,8 @@ There are various problems in this task, including descriptive studies, hypothes
 -   Use a two-sample *t*-test to determine whether the mean abundance of bacteria identified as genus *Enterococcus* differs significantly between nests and feathers. [Consider transforming variable **`Entero`** and use R function **`t.test`**.]
 
 -   Use a Mann-Whitney U-test (Wilcoxon rank sum test) to determine whether the population distribution of the abundance of bacteria identified as genus *Enterococcus* differs significantly between nests and feathers. [Use R function **`wilcox.test`**.]
+
+    \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\--
 
 -   Use analysis of variance to determine whether mean pathogen richness is related to habitat. [Use R functions **`lm`** and **`anova`**.]
 
@@ -391,6 +391,22 @@ stat_summary(fun = mean, geom = "point")
 
 Some initial exploration of the variables have given us some familiarity with the dataset.
 
+### Probability (Distributions)
+
+-   Explore and identify the probability distributions of variables, obtain probability mass and density functions.
+
+-   Common Discrete Probability Distributions: Binomial, Discrete Uniform, Poisson.
+
+-   Create probability table for categorical variables.
+
+-   Create probability mass functions (pmf) for discrete probability distributions.
+
+-   Common Continuous Probability Distributions: Normal, Continuous, Log-Normal, Exponential.
+
+-   Create probability density functions (pdf) and/or cumulative density functions (cdf) for continuous probability distributions.
+
+-   You can find the expected value and standard deviation of a probability distribution if you have the formula, sample, or probability table of the distribution (which are used in tests below).
+
 ### Dimensionality Reduction
 
 -   Techniques like t-SNE in addition to PCA, especially for visualizing high-dimensional data.
@@ -419,9 +435,13 @@ Some initial exploration of the variables have given us some familiarity with th
 
 ### Relationships
 
+-   Correlation: Understand statistical association between variables.
+
 -   Covariance: Understanding how two variables change together.
 
--   Regression Plots: Simple linear regression to visually understand relationships.
+-   Regression Analysis/Plots: Simple linear regression to visually understand relationships.
+
+-   Effect Size: Understanding the magnitude of relationships between variables.
 
 ### Contingency Analysis
 
@@ -468,6 +488,114 @@ Some initial exploration of the variables have given us some familiarity with th
 ### Conclusion
 
 -   Make a decision to accept or reject the null hypothesis based on the p-value.
+
+Note that in R, statistical tests are performed through functions and summarized for you, rather than having to manually implement them (while you can calculate them by hand).
+
+The statistician should handle:
+
+-   The interpretation of the tests. A p-value by itself does not "prove" anything.
+
+-   Underlying assumptions that built-in functions do not automatically check for.
+
+-   Choice of test: ensure that the appropriate test for the data and research question is applied.
+
+-   Data pre-processing: the data must be processed such that the test can be ran on it, handling issues like outliers, missing data, or necessary transformations.
+
+-   Multiple comparisons: generally, research questions will involve comparing the results of multiple tests on the data, and forming an interpretation.
+
+Let us perform the tests of the assignment.
+
+-   Use a two-sample *t*-test to determine whether the mean abundance of bacteria identified as genus *Escherichia/Shigella* differs significantly between nests and feathers. [Consider transforming variable **`EscShi`** and use R function **`t.test`**. Be careful when applying the natural logarithm transformation to data containing zeros since ln(0) is undefined. The usual way around this is to calculate ln(y+1) instead of ln(y).]
+
+As we saw above, EscShi data appears to be Log-normal (having a right-skewed distribution), and could benefit from a natural log transformation. Let us visualize this.
+
+```{r}
+# EscShi untransformed
+ggplot(data = chickadeeData, aes(x = EscShi)) +
+geom_histogram(col = "black", binwidth = 50,
+boundary = 0, closed = "left") +
+labs(x = "EscShi", y = "Frequency")
+
+# Natural Log transformation + 1 (to handle zeroes)
+EscShi_transformed <- log(chickadeeData$EscShi + 1)
+
+# Transformed EscShi histogram
+ggplot(data = chickadeeData, aes(x = EscShi_transformed)) +
+geom_histogram(col = "black", binwidth = 0.5,
+boundary = 0, closed = "left") +
+labs(x = "EscShi", y = "Frequency")
+```
+
+The transformed data is indeed easier to visualize. From visual inspection, the distribution appears to be approximately normally distributed. Let us assume that the variance within the groups are equal and perform the t-test.
+
+```{r}
+
+# Two sample t-test, assuming equal group variance 
+t.test(EscShi ~ Source, data = chickadeeData, var.equal = TRUE)
+
+# Two sample t-test of transformed data, assuming equal group variance
+t.test(EscShi_transformed ~ Source, data = chickadeeData, var.equal = TRUE)
+
+```
+
+Based on the test, there is evidence to reject the null hypothesis.
+
+-   Use a Mann-Whitney U-test (Wilcoxon rank sum test) to determine whether the population distribution of the abundance of bacteria identified as genus *Escherichia/Shigella* differs significantly between nests and feathers. [Use R function **`wilcox.test`**.]
+
+As we desire to know if the results of the log-normal test would hold to the original population, we will carry out a Mann-Whitney U-test, which can be used in place of the two-sample t-test when the normal distribution assumption of the two-sample t-test cannot be met.
+
+The Mann--Whitney U-test compares the distributions of two groups. It does not require as many assumptions as the two-sample t-test.
+
+Therefore, we will carry it out on the untransformed data.
+
+```{r}
+
+# Mann-Whitney U-Test
+wilcox.test(EscShi ~ Source, data = chickadeeData)
+
+```
+
+Based on the results of the test, we reject the null hypothesis, and find that there is evidence that the distributions of EscShi abundance between nests and feathers differ significantly.
+
+-   Use a two-sample *t*-test to determine whether the mean abundance of bacteria identified as genus *Enterococcus* differs significantly between nests and feathers. [Consider transforming variable **`Entero`** and use R function **`t.test`**.]
+
+We repeat the same procedure for genus *Enterococcus* as we did for genus *Escherichia/Shigella.*
+
+```{r}
+# Entero untransformed
+ggplot(data = chickadeeData, aes(x = Entero)) +
+geom_histogram(col = "black", binwidth = 10,
+boundary = 0, closed = "left") +
+labs(x = "Entero", y = "Frequency")
+
+# Natural Log transformation + 1 (to handle zeroes)
+Entero_transformed <- log(chickadeeData$Entero + 1)
+
+# Transformed Entero histogram
+ggplot(data = chickadeeData, aes(x = Entero_transformed)) +
+geom_histogram(col = "black", binwidth = 0.5,
+boundary = 0, closed = "left") +
+labs(x = "Entero", y = "Frequency")
+
+# Two sample t-test of transformed data, assuming equal group variance
+t.test(Entero_transformed ~ Source, data = chickadeeData, var.equal = TRUE)
+
+```
+
+Based on the results of the test, we reject the null hypothesis, and find that the mean abundance of *Enterococcus* differs significantly between nests and feathers as well.
+
+-   Use a Mann-Whitney U-test (Wilcoxon rank sum test) to determine whether the population distribution of the abundance of bacteria identified as genus *Enterococcus* differs significantly between nests and feathers. [Use R function **`wilcox.test`**.]
+
+```{r}
+
+# Mann-Whitney U-Test
+wilcox.test(Entero ~ Source, data = chickadeeData)
+
+```
+
+Based on the results of the test, we reject the null hypothesis, and find that the population distribution of the abundance of *Enterococcus* differs significantly between nests and feathers.
+
+So far, we can interpret that there is a significant difference of the abundance of bacteria between nests and feathers.
 
 ## 6. Statistical Inference - Estimation (if applicable)
 
