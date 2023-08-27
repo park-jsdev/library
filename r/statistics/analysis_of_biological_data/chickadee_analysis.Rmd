@@ -47,13 +47,13 @@ There are various problems in this task, including descriptive studies, hypothes
 
 -   Use a Mann-Whitney U-test (Wilcoxon rank sum test) to determine whether the population distribution of the abundance of bacteria identified as genus *Enterococcus* differs significantly between nests and feathers. [Use R function **`wilcox.test`**.]
 
-    \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\--
-
 -   Use analysis of variance to determine whether mean pathogen richness is related to habitat. [Use R functions **`lm`** and **`anova`**.]
 
 -   Use a Kruskal-Wallis test to determine whether mean pathogen richness is related to habitat. [Use R function **`kruskal.test`**.]
 
 -   Use the Tukey-Kramer method to which habitats differ with respect to mean pathogen richness. [Use R functions **`emmeans`** and **`contrast`**.]
+
+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\--
 
 -   Use contingency table analysis to determine whether community richness on feathers is independent of mountain chickadees sex? [Use R function **`filter`** in the **`dplyr`** package to subset the data frame to retain only feather swabs, then use R functions **`table`** and **`chisq.test`**.]
 
@@ -538,7 +538,7 @@ t.test(EscShi_transformed ~ Source, data = chickadeeData, var.equal = TRUE)
 
 ```
 
-Based on the test, there is evidence to reject the null hypothesis.
+Based on the test, there is evidence to reject the null hypothesis. The test also shows that there is a higher mean abundance of bacteria identified as genus *Escherichia/Shigella* in the feather group.
 
 -   Use a Mann-Whitney U-test (Wilcoxon rank sum test) to determine whether the population distribution of the abundance of bacteria identified as genus *Escherichia/Shigella* differs significantly between nests and feathers. [Use R function **`wilcox.test`**.]
 
@@ -582,7 +582,7 @@ t.test(Entero_transformed ~ Source, data = chickadeeData, var.equal = TRUE)
 
 ```
 
-Based on the results of the test, we reject the null hypothesis, and find that the mean abundance of *Enterococcus* differs significantly between nests and feathers as well.
+Based on the results of the test, we reject the null hypothesis, and find that the mean abundance of *Enterococcus* differs significantly between nests and feathers as well. However, the test shows that there is a higher mean abundance of bacteria identified as genus *Enterococcus* in the nest group.
 
 -   Use a Mann-Whitney U-test (Wilcoxon rank sum test) to determine whether the population distribution of the abundance of bacteria identified as genus *Enterococcus* differs significantly between nests and feathers. [Use R function **`wilcox.test`**.]
 
@@ -595,7 +595,25 @@ wilcox.test(Entero ~ Source, data = chickadeeData)
 
 Based on the results of the test, we reject the null hypothesis, and find that the population distribution of the abundance of *Enterococcus* differs significantly between nests and feathers.
 
-So far, we can interpret that there is a significant difference of the abundance of bacteria between nests and feathers.
+So far, we can interpret that there is a significant difference of the abundance of bacteria between nests and feathers, but there is a higher abundance of *Escherichia/Shigella* in the feather group, while there is a higher abundance of *Enterococcus* in the nest group.
+
+-   Use analysis of variance to determine whether mean pathogen richness is related to habitat. [Use R functions **`lm`** and **`anova`**.]
+
+```{r}
+
+```
+
+-   Use a Kruskal-Wallis test to determine whether mean pathogen richness is related to habitat. [Use R function **`kruskal.test`**.]
+
+```{r}
+
+```
+
+-   Use the Tukey-Kramer method to which habitats differ with respect to mean pathogen richness. [Use R functions **`emmeans`** and **`contrast`**.]
+
+```{r}
+
+```
 
 ## 6. Statistical Inference - Estimation (if applicable)
 
