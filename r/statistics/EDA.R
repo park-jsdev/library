@@ -1,5 +1,8 @@
 # Exploratory Data Analysis
 
+# For all statistical tests, make sure to select the appropriate one for the use case and the data.
+# Ensure that assumptions of the statistical tests are met.
+
 # Basic setup
 setwd("C:\\Users\\JP\\Desktop\\dirpath")
 library(ggplot2) # Install Library, also you can install from packages (but should be automatic)
@@ -56,6 +59,41 @@ df[["column1"]]  # Using [[]]
 df[1,]  # Accesses the first row
 
 df[1, "column1"]  # Accesses the first row of 'column1'
+
+
+# Numerical Analysis of Variables
+
+# Shapiro-Wilk Test for normality:
+# This is considered a "formal test" for normality
+# W close to 1 means it does not deviate much from normality
+# In this test, the alternative hypothesis is that it deviates from normality, therefore a p > 0.05 means
+# that the distribution is indeed normal.
+shapiro.test(variable)
+
+# Skewness and Kurtosis:
+# Calculate skewness and kurtosis to check for asymmetry and tail behavior.
+library(moments)
+skewness(variable)
+kurtosis(variable)
+
+# Levene's Test
+# Used in regression to check for homogeneity of variances (homoscedasticity).
+library(car)
+leveneTest(y_variable ~ x_variable)
+
+# Residual Plots:
+# This is a model diagonostic. In regression models, residual plots can be helpful to identify the need for transformation.
+plot(model$residuals)
+
+# Box-Cox Transformation (catch-all method)
+library(MASS)
+boxcox(model)
+
+
+# Common Transformations
+# Log Transformation: log(variable)
+# Square Root: sqrt(variable)
+# Inverse: 1 / variable
 
 
 # Summary Statistics
@@ -122,3 +160,52 @@ ggplot(data = chickadeeData, aes(y = BirdWeight, x = TailLen)) +
   geom_violin() +
   labs(x = "Tail Length", y = "BirdWeight") +
   stat_summary(fun = mean, geom = "point")
+
+
+
+# Analysis of Relationships
+
+# Scatter Plot with linear model
+ggplot(chickadeeData, aes(x=Habitat, y=PathRich)) +
+  geom_point(aes(color=Habitat), size=3) +            # Scatter plot
+  geom_smooth(method='lm', aes(group=1, color=Habitat)) + # Add a linear fit, colored by Habitat
+  labs(title="Relationship between Pathogen Richness and Habitat",
+       x="Habitat",
+       y="Pathogen Richness") +
+  theme_minimal()
+
+
+# Regression Analysis
+
+# Simple Linear Regression
+PathRich_Habitat_Regression <- lm(PathRich ~ Habitat, data = chickadeeData)
+# The coefficient estimates tells us how much the dependent variable changes based on a change of 1 in the independent variable
+# The Multiple R-squared tells us the proportion of the variance in the dependent
+# variable that is predictable from the independent variable(s)
+summary(PathRich_Habitat_Regression)
+
+# Calculate a 95% Confidence interval for the slope
+confint(PathRich_Habitat_Regression, level = 0.95)
+
+
+# Analysis of Variance
+
+# ANOVA
+# Essentially tests whether the model, as a whole, explains a significant amount of the variance
+# in the dependent variable.
+anova(PathRich_Habitat_Regression)
+
+# Kruskal-Wallis Test
+# A nonparametric method based on ranks, is the equivalent of the Mann–Whitney U-test when there are more than
+# two groups.
+# For testing differences among k populations in the means or medians of their distributions.
+kruskal.test(PathRich ~ Habitat, data = chickadeeData)
+
+# Tukey-Kramer
+# Unplanned Comparisons (Multiple Comparisons Between All Pairs of Means)
+# Often used as a post-hoc analysis after a one-way ANOVA or Kruskal-Wallis test to determine which specific groups differ from each other.
+pathogenPairs <- emmeans(PathRich_Habitat_Regression, specs = "Habitat")
+pathogenUnplanned <- contrast(pathogenPairs, method = "pairwise",
+                              adjust = "tukey")
+
+pathogenUnplanned

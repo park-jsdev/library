@@ -172,6 +172,8 @@ For now, we will leave it as we develop a better understanding of the data and t
 
 -   Sample size: Plan for precision, power, and data loss.
 
+-   A priori tests or analyses.
+
 ### Feature Engineering
 
 -   Deriving new variables that might be relevant for analysis.
@@ -489,6 +491,10 @@ Some initial exploration of the variables have given us some familiarity with th
 
 -   Make a decision to accept or reject the null hypothesis based on the p-value.
 
+### Post-Hoc Analysis
+
+-   Tests or Analyses that are performed after the initial hypothesis test to explore the data further, especially when the initial test indicates a significant result.
+
 Note that in R, statistical tests are performed through functions and summarized for you, rather than having to manually implement them (while you can calculate them by hand).
 
 The statistician should handle:
@@ -599,21 +605,103 @@ So far, we can interpret that there is a significant difference of the abundance
 
 -   Use analysis of variance to determine whether mean pathogen richness is related to habitat. [Use R functions **`lm`** and **`anova`**.]
 
+Let us first investigate if mean pathogen richness requires transformation.
+
 ```{r}
+# Summarize variable
+describe(chickadeeData$PathRich)
+
+# PathRich
+ggplot(data = chickadeeData, aes(x = PathRich)) +
+geom_histogram(col = "black", binwidth = 4,
+boundary = 0, closed = "left") +
+labs(x = "Pathogen Richness", y = "Frequency")
+
+# Shapiro-Wilk Test for normality
+shapiro.test(chickadeeData$PathRich)
 
 ```
+
+Upon visual inspection, the pathogen richness data does appear to be normally distributed, and we conclude from the Shapiro-Wilk test that there is do significant difference from a normal distribution. Therefore, we will not transform this data.
+
+Let us perform the analysis of variance:
+
+```{r}
+# Scatter Plot with linear model
+ggplot(chickadeeData, aes(x=Habitat, y=PathRich)) +
+  geom_point(aes(color=Habitat), size=3) +            # Scatter plot
+  geom_smooth(method='lm', aes(group=1, color=Habitat)) + # Add a linear fit, colored by Habitat
+  labs(title="Relationship between Pathogen Richness and Habitat",
+       x="Habitat",
+       y="Pathogen Richness") +
+  theme_minimal()
+
+```
+
+Upon visual inspection of the linear model, discounting outliers, there does appear to be a linear relationship between pathogen richness and habitat, if we order from rural to urban.
+
+```{r}
+
+# Simple Linear Regression
+PathRich_Habitat_Regression <- lm(PathRich ~ Habitat, data = chickadeeData)
+summary(PathRich_Habitat_Regression)
+
+# Calculate a 95% Confidence interval for the slope
+# confint(PathRich_Habitat_Regression, level = 0.95)
+
+# ANOVA
+anova(PathRich_Habitat_Regression)
+```
+
+The linear model confirms this, as the estimates of coefficients increases as we compare habitats. The predictors are statistically significant, as the p values are below the alpha level of 0.05.
+
+The Multiple R-squared tells us the proportion of the variance in the dependent variable that is predictable from the independent variable(s). In this case, it is 19.34%, and while it is not high, it is non-negligible.
+
+The F-statistic tests whether at least one predictor variable has a non-zero coefficient, and the p-value is less than alpha 0.05, meaning that habitat is a significant predictor of pathogen richness.
+
+ANOVA essentially tests whether the model, as a whole, explains a significant amount of the variance in the dependent variable.
+
+The p-value associated with the F-statistic is less than the alpha level of 0.05, meaning that there is a significant effect of habitat on pathogen richness.
+
+Based on these results, we can conclude that mean pathogen richness is related to habitat. The model as a whole is statistically significant, but the Multiple R-squared value suggests that only about 19.34% of the variability in pathogen richness can be explained by habitat, so there may be other factors at play as well.
+
+Thus, there is evidence to support that habitat is a significant predictor of pathogen richness, but it is not the only factor influencing it. Furthermore, as it is implied that habitat is categorized based on human population density, we can infer that pathogen richness increases with human population density.
 
 -   Use a Kruskal-Wallis test to determine whether mean pathogen richness is related to habitat. [Use R function **`kruskal.test`**.]
 
 ```{r}
 
+# Kruskal-Wallis Test
+kruskal.test(PathRich ~ Habitat, data = chickadeeData)
+
 ```
+
+The Kruskal-Wallis test is a non-parametric alternative to single factor ANOVA, and is used to test if there are statistically significant differences between the medians of three or more independent groups. Unlike ANOVA, it does not assume a normal distribution of the residuals or homogeneity of variance.
+
+In this case, the p-value associated with the Kruskal-Wallis chi-squared test statistic is below alpha of 0.01, and we can conclude that the differences in the groups are due to random chance. From this conclusion, we have gathered evidence to support the inferences from the linear model.
 
 -   Use the Tukey-Kramer method to which habitats differ with respect to mean pathogen richness. [Use R functions **`emmeans`** and **`contrast`**.]
 
 ```{r}
 
+# Tukey-Kramer test
+# Often used as a post-hoc analysis after a one-way ANOVA or Kruskal-Wallis test to determine which specific groups differ from each other.
+pathogenPairs <- emmeans(PathRich_Habitat_Regression, specs = "Habitat")
+pathogenUnplanned <- contrast(pathogenPairs, method = "pairwise",
+adjust = "tukey")
+
+pathogenUnplanned
 ```
+
+Let us interpret each row.
+
+1.  Rural vs Semi-Urban: Pathogen richness is lower in rural areas than semi-urban areas, but the p-value is greater than the alpha level of 0.05. This difference is not statistically significant.
+2.  Rural vs Urban: Pathogen richness is lower in rural areas than urban areas, and the p-value is lower than the alpha level of 0.05. This difference is statistically significant.
+3.  Semi-Urban vs Urban: Pathogen richness is lower in semi-urban areas than urban areas, but the p-value is greater than the alpha level of 0.05. This difference is not statistically significant.
+
+From the Tukey-Kramer test, we can conclude that pathogen richness is significantly higher in urban areas compared to rural areas, but there are no statistically significant differences in pathogen richness between rural and semi-urban areas, or between semi-urban and urban areas based on this data.
+
+These results support the linear regression model and Kruskal-Wallis test, reinforcing the idea that pathogen richness varies with habitat type.
 
 ## 6. Statistical Inference - Estimation (if applicable)
 
