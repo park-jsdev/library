@@ -165,6 +165,41 @@ ggplot(data = chickadeeData, aes(y = BirdWeight, x = TailLen)) +
 
 # Analysis of Relationships
 
+# Contingency Analysis
+
+# Confirm the column to be filtered
+unique(chickadeeData$Source)
+
+# Filter df for Source = feather
+df_feather <- filter(chickadeeData, Source == 'feather')
+df_feather
+
+# Check the order of the categories
+chickadeeData$CommRich
+unique(chickadeeData$CommRich)
+# They are already ordered
+
+# Order the categories as desired by turning into a factor variable (if needed. This is useful for more than 2 categories)
+CommRich_BirdSex_table$CommRich <-
+  factor(CommRich_BirdSex_table$CommRich,
+         levels = c("low", "high"))
+
+# Create 2x2 Contingency Table for community richness and sex
+CommRich_BirdSex_table <- table(df_feather$CommRich, df_feather$BirdSex)
+CommRich_BirdSex_table
+str(CommRich_BirdSex_table)
+
+# Create a mosaic plot to visualize the data
+par(pty = "s") # makes a square plot
+mosaicplot(t(CommRich_BirdSex_table), col = c("firebrick", "goldenrod1"),
+           cex.axis = 1, main = "",
+           sub = "Infection status", ylab = "Relative frequency")
+
+# Conduct a Chi-squared Test of Independence of Two Categorical Variables
+Xsq <- chisq.test(CommRich_BirdSex_table, correct = FALSE)
+Xsq
+
+
 # Scatter Plot with linear model
 ggplot(chickadeeData, aes(x=Habitat, y=PathRich)) +
   geom_point(aes(color=Habitat), size=3) +            # Scatter plot

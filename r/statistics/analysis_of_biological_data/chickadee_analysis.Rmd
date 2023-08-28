@@ -53,8 +53,6 @@ There are various problems in this task, including descriptive studies, hypothes
 
 -   Use the Tukey-Kramer method to which habitats differ with respect to mean pathogen richness. [Use R functions **`emmeans`** and **`contrast`**.]
 
-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\--
-
 -   Use contingency table analysis to determine whether community richness on feathers is independent of mountain chickadees sex? [Use R function **`filter`** in the **`dplyr`** package to subset the data frame to retain only feather swabs, then use R functions **`table`** and **`chisq.test`**.]
 
 -   Use simple linear regression to determine which of **`WingChord`**, **`BirdWeight`**, **`TailLen`**, or **`TarsusLen`** is most linearly associated with pathogen richness on feathers. [Use R functions **`lm`** and **`summary`**.]
@@ -66,6 +64,8 @@ There are various problems in this task, including descriptive studies, hypothes
 -   Use a two-sample *t*-test to determine whether mean pathogen richness on feathers differs significantly between male and female birds. [Use R function **`t.test`**.]
 
 -   Starting from the simple linear regression model in Question 12, use analysis of covariance to investigate whether the linear association in the model differs for male and female birds. [Use R functions **`lm`** and **`summary`**.]
+
+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\--
 
 -   Apply principal component analysis to the variables **`WingChord`**, **`BirdWeight`**, **`TailLen`**, and **`TarsusLen`**. [Use R functions **`scale`**, **`prcomp`**, and **`summary`**. Also, summarize the principal component loadings and use R function **`fviz_pca_ind`** with argument **`habillage`** to visualize the results and colour the observations by bird sex.]
 
@@ -459,6 +459,47 @@ Some initial exploration of the variables have given us some familiarity with th
 
 -   Expected Frequencies: In some cases, you might want to compare observed frequencies in the contingency table with expected frequencies under some statistical model. This can give insights into how well a given model fits your data.
 
+-   Use contingency table analysis to determine whether community richness on feathers is independent of mountain chickadees sex? [Use R function **`filter`** in the **`dplyr`** package to subset the data frame to retain only feather swabs, then use R functions **`table`** and **`chisq.test`**.
+
+```{r}
+
+# Confirm the column to be filtered
+unique(chickadeeData$Source)
+
+# Filter df for Source = feather
+df_feather <- filter(chickadeeData, Source == 'feather')
+df_feather
+
+# Check the order of the categories
+chickadeeData$CommRich
+unique(chickadeeData$CommRich)
+# They are already ordered
+
+# Order the categories as desired by turning into a factor variable (if needed. This is useful for more than 2 categories)
+CommRich_BirdSex_table$CommRich <-
+factor(CommRich_BirdSex_table$CommRich,
+levels = c("low", "high"))
+
+# Create 2x2 Contingency Table for community richness and sex
+CommRich_BirdSex_table <- table(df_feather$CommRich, df_feather$BirdSex)
+CommRich_BirdSex_table
+str(CommRich_BirdSex_table)
+
+# Create a mosaic plot to visualize the data
+par(pty = "s") # makes a square plot
+mosaicplot(t(CommRich_BirdSex_table), col = c("firebrick", "goldenrod1"),
+cex.axis = 1, main = "",
+sub = "Infection status", ylab = "Relative frequency")
+
+# Conduct a Chi-squared Test of Independence of Two Categorical Variables
+Xsq <- chisq.test(CommRich_BirdSex_table, correct = FALSE)
+Xsq
+```
+
+As the p-value is less than the alpha level of 0.05, there is not enough evidence to conclude that there is an association between community richness and bird sex, based on the Chi-squared test of the contingency table analysis. From these results, we would fail to accept the null hypothesis of independence of the variables.
+
+Simply said, there is no reason to assume that the pathogen community richness on feathers would differ due to the birds' sex.
+
 ## 4. Model Specification
 
 ### Statistical Model
@@ -702,6 +743,44 @@ Let us interpret each row.
 From the Tukey-Kramer test, we can conclude that pathogen richness is significantly higher in urban areas compared to rural areas, but there are no statistically significant differences in pathogen richness between rural and semi-urban areas, or between semi-urban and urban areas based on this data.
 
 These results support the linear regression model and Kruskal-Wallis test, reinforcing the idea that pathogen richness varies with habitat type.
+
+-   Use simple linear regression to determine which of **`WingChord`**, **`BirdWeight`**, **`TailLen`**, or **`TarsusLen`** is most linearly associated with pathogen richness on feathers. [Use R functions **`lm`** and **`summary`**.]
+
+```{r}
+
+# Select the subset df for feathers
+summary(df_feather)
+unique(df_feather)
+
+# Fit a linear model to each relationship
+fit_WingChord <- lm(df_feather$PathRich ~ df_feather$WingChord)
+fit_BirdWeight <- lm(df_feather$PathRich ~ df_feather$BirdWeight)
+fit_TailLen <- lm(df_feather$PathRich ~ df_feather$TailLen)
+fit_TarsusLen <- lm(df_feather$PathRich ~ df_feather$TarsusLen)
+
+# Summarize the fits
+summary(fit_WingChord)
+summary(fit_BirdWeight)
+summary(fit_TailLen)
+summary(fit_TarsusLen)
+
+# Alternatively, fit a multiple linear regression model
+fit_all <- lm(PathRich ~ WingChord + BirdWeight + TailLen + TarsusLen, data = df_feather)
+summary(fit_all)
+
+```
+
+The Highest R-squared value is considered the most linearly associated with the dependent variable, while the variable with the lowest p-value is the most statistically significant predictor of the dependent variable. By using a multiple linear regression model, we cannot compare the R-squared values between each of the fits, so it is preferable to fit each one separately.
+
+Let us inspect the metrics of each fit:
+
+-   For the simple linear regression model selected in Question 11, investigate whether there are any outliers. An outlier in the context of linear regression is an observation with an extreme difference between the observed response value and the predicted response value from the model. Use the **`filter`** function to create a new data frame that excludes the most extreme outlier and refit the simple linear regression model. Report the results for the model fit to the data frame excluding the outlier and use this data frame to answer Questions 13-18.
+
+-   Find the best multiple linear regression model for predicting pathogen richness on feathers from two predictors out of **`WingChord`**, **`BirdWeight`**, **`TailLen`**, and **`TarsusLen`**. [Use R functions **`lm`** and **`summary`**.]
+
+-   Use a two-sample *t*-test to determine whether mean pathogen richness on feathers differs significantly between male and female birds. [Use R function **`t.test`**.]
+
+-   Starting from the simple linear regression model in Question 12, use analysis of covariance to investigate whether the linear association in the model differs for male and female birds. [Use R functions **`lm`** and **`summary`**.]
 
 ## 6. Statistical Inference - Estimation (if applicable)
 
