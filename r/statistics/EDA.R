@@ -14,7 +14,8 @@ summary(df)
 head(df)
 
 # See column names
-names(df)
+names(df) # more general purpose (vector or list)
+colnames(df)
 
 # See unique values of a col in a dataframe
 unique(df$col)
@@ -24,6 +25,12 @@ table(df$col)
 
 # Detailed summary of dataframe
 str(df)
+
+# Check if dataframe or another class
+class(df)
+
+# Convert back to df
+df <- as.data.frame(df)
 
 # Summarize each variable using Hmisc
 install.packages("Hmisc")
@@ -62,6 +69,36 @@ df[1, "column1"]  # Accesses the first row of 'column1'
 
 
 # Numerical Analysis of Variables
+
+# Outlier Detection in Variables
+
+# Scatter Plot: A scatter plot can provide a good initial sense of the data distribution and potential outliers.
+plot(x, y)
+
+# Boxplot: This shows you the interquartile range and any data points that fall far from the other points.
+boxplot(x)
+boxplot(y)
+
+# Statistical Measures
+
+# Z-Score: The Z-score represents how many standard deviations an element is from the mean.
+# A Z-score above a certain absolute value (commonly 2 or 3) could be considered an outlier.
+z_scores_x <- scale(x)
+z_scores_y <- scale(y)
+
+# Filtering outliers
+juncoNoOutlier <- filter(junco, percentWhiteTail > 38)
+
+# E.g. plot with filter
+ggplot(junco, aes(latitude, percentWhiteTail)) +
+  geom_point(size = 2, col = "firebrick") +
+  geom_smooth(method = "lm", se = FALSE, col = "firebrick") +
+  geom_point(size = 2, data = juncoNoOutlier) +
+  geom_smooth(method = "lm", se = FALSE, col = "black",
+              data = juncoNoOutlier) +
+  labs(x = "Latitude (degrees N)", y = "Percent white in tail")
+
+
 
 # Shapiro-Wilk Test for normality:
 # This is considered a "formal test" for normality
@@ -222,6 +259,28 @@ summary(PathRich_Habitat_Regression)
 # Calculate a 95% Confidence interval for the slope
 confint(PathRich_Habitat_Regression, level = 0.95)
 
+# Multiple Linear Regression
+# Checks the significance of the entire model, you can check between 2 predictor variables and compare.
+fit_all <- lm(PathRich ~ WingChord + BirdWeight + TailLen + TarsusLen, data = df_feather)
+# Residuals, RSE (RMSE) and R-squared are all indicators of a model's goodness of fit
+summary(fit_all)
+
+# Residual analysis
+# residuals—the differences between observed and predicted values
+
+# Magnitue of Error from RSE
+# The RSE gives you an idea of how much your predictions are likely to deviate from the actual values.
+# Lower RSE values indicate better fit, as the predictions are closer to the observed data,
+# whereas higher values suggest that the model predictions deviate more from the observed data.
+
+# Residual Distribution
+# In an ideal scenario for linear regression, residuals should be normally distributed with a mean of zero.
+# The RSE gives an idea of the "spread" of these residuals.
+
+# Prediction Intervals from Residuals
+# The RSE is used to calculate prediction intervals for individual predictions.
+# A prediction interval gives an interval within which a new observation will fall with a certain probability,
+# assuming the model is correct.
 
 # Analysis of Variance
 
@@ -244,3 +303,17 @@ pathogenUnplanned <- contrast(pathogenPairs, method = "pairwise",
                               adjust = "tukey")
 
 pathogenUnplanned
+
+# Outlier Detection in Linear Regression
+
+# Cook's Distance: This measure identifies points that are particularly influential in 
+# calculating the fitted regression line.
+model <- lm(y ~ x)
+cook_dist <- cooks.distance(model)
+influential_points <- as.numeric(names(cook_dist)[cook_dist > (4/n)])
+
+# Standardized Residuals: After fitting the initial model, examine the standardized residuals
+# for values that are too high or too low.
+model <- lm(y ~ x)
+std_residuals <- rstandard(model)
+

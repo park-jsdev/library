@@ -270,23 +270,6 @@ chickadeeTableEntero
 
 ```{r}
 
-# Factor the categorical only
-
-# Factor pathogen data variables
-# EscShi
-chickadeeData$EscShi_ordered <- factor(chickadeeData$EscShi,
-  levels = names(sort(chickadeeTableEscShi,
-                 decreasing = TRUE)))
-
-table(chickadeeData$EscShi_ordered)
-
-# Entero
-chickadeeData$Entero_ordered <- factor(chickadeeData$Entero,
-  levels = names(sort(chickadeeTableEntero,
-                 decreasing = TRUE)))
-
-table(chickadeeData$Entero_ordered)
-
 # Visualize frequency distributions of single variables
 
 # Bar charts for categorical variables
@@ -774,9 +757,138 @@ The Highest R-squared value is considered the most linearly associated with the 
 
 Let us inspect the metrics of each fit:
 
+-   Wing Chord: Coefficient estimate of 1.290, with a p-value of 0.3262. Multiple R-squared of 0.03443.
+
+-   Weight: Coefficient estimate of 0.9894, with a p-value of 0.5492. Multiple R-squared of 0.01296.
+
+-   Tail Length: Coefficient estimate of 2.148, with a p-value of 0.06816. Multiple R-squared of 0.1139.
+
+-   Tarsus Length: Coefficient estimate of -5.501, with a p-value of 0.1971. Multiple R-squared of 0.0587.
+
+From these tests, none of the results are statistically significant, as the p-values are greater than the alpha level of 0.05. However, Tail length is the most likely to be significant, relative to the other variables, due to its lower p-value. It also has the greatest coefficient estimate, and multiple R-squared value.
+
+It should be noted that tarsus length is negatively correlated with pathogen richness based on this data, but the p-value is too high to be statistically significant. This however, may guide our intuition for later.
+
+As the multiple linear regression model results in a p-value greater than the alpha level of 0.05, we fail to reject the null hypothesis that the model predictors have no effect on the response variable.
+
 -   For the simple linear regression model selected in Question 11, investigate whether there are any outliers. An outlier in the context of linear regression is an observation with an extreme difference between the observed response value and the predicted response value from the model. Use the **`filter`** function to create a new data frame that excludes the most extreme outlier and refit the simple linear regression model. Report the results for the model fit to the data frame excluding the outlier and use this data frame to answer Questions 13-18.
 
+We will now account for outliers in the data:
+
+```{r}
+
+# Investigate outliers visually
+
+# Individually
+boxplot(df_feather$PathRich) # Outlier > 60
+boxplot(df_feather$WingChord)
+boxplot(df_feather$BirdWeight) # Outliers > 13
+boxplot(df_feather$TailLen)
+boxplot(df_feather$TarsusLen)
+
+```
+
+We can see some outliers in PathRich and BirdWeight, based on falling outside of the interquartile range in the boxplots. Let us filter them, then plot the filtered data:
+
+```{r}
+
+# Filter outliers
+df_feather <- filter(df_feather, PathRich < 66) # Outlier > 60
+df_feather <- filter(df_feather, BirdWeight < 14) # Outlier > 13
+
+# Check if filters were successful
+boxplot(df_feather$PathRich) # Outlier > 60
+boxplot(df_feather$BirdWeight) # Outliers > 13
+
+# Check Relationships for more potential outliers
+plot(PathRich ~ WingChord, data = df_feather)
+plot(PathRich ~ BirdWeight, data = df_feather)
+plot(PathRich ~ TailLen, data = df_feather)
+plot(PathRich ~ TarsusLen, data = df_feather)
+
+# BirdWeight only has 1 value at 13, treat it as an outlier
+df_feather <- filter(df_feather, BirdWeight < 12.5)
+plot(PathRich ~ BirdWeight, data = df_feather)
+
+```
+
+After removing the outliers, let us fit the linear model once again:
+
+fit_all \<- lm(PathRich \~ WingChord + BirdWeight + TailLen + TarsusLen, data = df_feather)
+
+summary(fit_all)
+
+```{r}
+
+# Fit a linear model to each relationship
+fit_WingChord <- lm(df_feather$PathRich ~ df_feather$WingChord)
+fit_BirdWeight <- lm(df_feather$PathRich ~ df_feather$BirdWeight)
+fit_TailLen <- lm(df_feather$PathRich ~ df_feather$TailLen)
+fit_TarsusLen <- lm(df_feather$PathRich ~ df_feather$TarsusLen)
+
+# Summarize the fits
+summary(fit_WingChord)
+summary(fit_BirdWeight)
+summary(fit_TailLen)
+summary(fit_TarsusLen)
+
+# Alternatively, fit a multiple linear regression model
+fit_all <- lm(PathRich ~ WingChord + BirdWeight + TailLen + TarsusLen, data = df_feather)
+summary(fit_all)
+```
+
+Excluding the outliers, we find that two variables are statistically significant:
+
+-   Wing Chord: Coefficient estimate of 2.260, with a p-value of 0.03014. Multiple R-squared of 0.2141.
+
+-   Tail Length: Coefficient estimate of 2.1883, with a p-value of 0.03072. Multiple R-squared of 0.2128.
+
+The multiple linear regression model results in a p-value less than the alpha level of 0.05, therefore we reject the null hypothesis that the model predictors have no effect on the response variable, and conclude that the model as a whole is significant, meaning that there exists predictors that have an effect on the response variable.
+
 -   Find the best multiple linear regression model for predicting pathogen richness on feathers from two predictors out of **`WingChord`**, **`BirdWeight`**, **`TailLen`**, and **`TarsusLen`**. [Use R functions **`lm`** and **`summary`**.]
+
+```{r}
+
+# WingChord + BirdWeight
+fit_WingChord_BirdWeight <- lm(PathRich ~ WingChord + BirdWeight, data = df_feather)
+summary(fit_WingChord_BirdWeight)
+
+# WingChord + TailLen
+fit_WingChord_TailLen <- lm(PathRich ~ WingChord + TailLen, data = df_feather)
+summary(fit_WingChord_TailLen)
+
+# WingChord + TarsusLen
+fit_WingChord_TarsusLen <- lm(PathRich ~ WingChord + TarsusLen, data = df_feather)
+summary(fit_WingChord_TarsusLen)
+
+# BirdWeight + TailLen
+fit_BirdWeight_TailLen <- lm(PathRich ~ BirdWeight + TailLen, data = df_feather)
+summary(fit_BirdWeight_TailLen)
+
+# BirdWeight + TarsusLen
+fit_BirdWeight_TarsusLen <- lm(PathRich ~ BirdWeight + TarsusLen, data = df_feather)
+summary(fit_BirdWeight_TarsusLen)
+
+# TailLen + TarsusLen
+fit_TailLen_TarsusLen <- lm(PathRich ~ TailLen + TarsusLen, data = df_feather)
+summary(fit_TailLen_TarsusLen)
+
+```
+
+We shall compare the results by hand, to determine the models which result in p-values below the alpha level of 0.05, and have the highest Multiple R-squared values, Residual Standard Error, and Adjusted R-Squared values (if necessary).
+
+-   Wing chord and tarsus length has a p-value less than the alpha level of 0.05. It has an R-squared value of 0.54, Adjusted R-squared of 0.4916, and a RSE of 7.946 on 19 degrees of freedom.
+
+```{=html}
+<!-- -->
+```
+-   Bird weight and tarsus length has a p-value less than the alpha level of 0.05. It has an R-squared value of 0.2799, Adjusted R-squared of 0.2042, and a RSE of 9.941 on 19 degrees of freedom.
+
+-   Tail length and tarsus length has a p-value less than the alpha level of 0.05. It has an R-squared value of 0.4542, Adjusted R-squared of 0.3968, and a RSE of 8.655 on 19 degrees of freedom.
+
+From these results, the best model for predicting pathogen richness on feathers from two predictors is the wing chord and tarsus length model, based on all three metrics taken into consideration. This is in agreement with the single linear regression model results which suggested wing chord was one of the best predictors.
+
+The single linear regression model suggested that tail length as also a significant predictor of pathogen richness on feathers, and the multiple regression model does support this conclusion.
 
 -   Use a two-sample *t*-test to determine whether mean pathogen richness on feathers differs significantly between male and female birds. [Use R function **`t.test`**.]
 
