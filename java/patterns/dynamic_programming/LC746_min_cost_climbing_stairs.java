@@ -1,10 +1,10 @@
 /**
-    Dynamic Programming solution
+    Dynamic Programming Tabulation solution
     Time: O(n)
     Space: O(n)
 
     Review the Top down Recursive, Recursive with Memoization solution.
-    There is only a Tabulation solution for Bottom Up, as we must store the costs.
+    There can be further optimization to reduce space to O(1).
  */ 
 class Solution {
     public int minCostClimbingStairs(int[] cost) {
