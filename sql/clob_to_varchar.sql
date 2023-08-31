@@ -27,8 +27,8 @@ DECLARE
   v_low NUMBER := 1;  -- Lower bound of length
   v_high NUMBER := 1000; -- Upper bound of length
   v_mid NUMBER;
-  v_table_name VARCHAR2(50) := 'table_name'; -- Replace with your table name
-  v_col_name VARCHAR2(50) := 'col_name'; -- Replace with your column name
+  v_table_name VARCHAR2(50) := 'table_name'; 
+  v_col_name VARCHAR2(50) := 'col_name'; 
 BEGIN
   LOOP
     v_mid := FLOOR((v_low + v_high) / 2);
@@ -57,7 +57,7 @@ DECLARE
   v_low NUMBER;
   v_high NUMBER;
   v_mid NUMBER;
-  v_table_name VARCHAR2(50) := 'table_name'; -- Replace with your table name
+  v_table_name VARCHAR2(50) := 'table_name';
 BEGIN
   FOR rec IN (SELECT column_name
               FROM user_tab_columns
