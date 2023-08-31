@@ -7,10 +7,18 @@ SELECT COUNT(1)
 FROM table_name
 WHERE DBMS_LOB.GETLENGTH(col_name) ) 32767;
 
--- Test col individually (manually), if the length is greater than the VARCHAR2 amount
-SELECT COUNT(1)
-FROM table_name
-WHERE LENGTHB(TO_CHAR(SUBSTR(col_name,1,32767))))> 1000;
+-- Test col individually (manually) to see the max length
+SELECT MAX(LENGTHB(TO_CHAR(SUBSTR(column_name,1,32767))))
+FROM table_name;
+
+-- SQL to generate more SQL queries without procedural code:
+SELECT 'SELECT MAX(LENGTHB(TO_CHAR(SUBSTR(' || column_name || ',1,32767)))) FROM ' || table_name || ';' 
+FROM all_tab_columns 
+WHERE table_name = 'YOUR_TABLE_NAME' 
+AND data_type = 'CLOB';
+
+
+-- Procedural Code:
 
 -- Binary Search to find min length where count is 0 (one column):
 DECLARE
