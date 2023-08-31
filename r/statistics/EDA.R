@@ -202,6 +202,41 @@ ggplot(data = chickadeeData, aes(y = BirdWeight, x = TailLen)) +
 
 # Analysis of Relationships
 
+# Means
+
+# Two-sample t-test
+# Determine whether the mean of the dependent variable differs significantly between the independent variables
+# i.e. compare the means of two groups to see if they are statistically different.
+
+# Assess normality and equal variance
+ggplot(df_feather, aes(x = PathRich)) +
+  geom_histogram(col = "black", binwidth = 3,
+                 boundary = 0, closed = "left") +
+  facet_wrap( ~ BirdSex, ncol = 1, scales = "free_y") +
+  labs(x = "Pathogen richness", y = "Sex")
+
+# Q-Q Plot (Quantile-Quantile Plot)
+#  If the data points closely follow the line in a Q-Q plot, the data are approximately normally distributed.
+qqnorm(df_feather$PathRich)
+qqline(df_feather$PathRich)
+
+# Levene's Test to check for equal variance
+leveneTest(df_feather$PathRich ~ df_feather$BirdSex) # fail to reject the null hypothesis, suggesting it is reasonable to assume equal variances.
+
+# Check for missing values
+sum(is.na(df_feather$PathRich)) # none
+
+# Filter missing values (if there are any)
+#featherSub <- filter(df_feather, PathRich != "NA")
+
+# t-test assuming equal variance
+t.test(PathRich ~ BirdSex, data = df_feather, var.equal = TRUE)
+
+# t-test (Welch's t-test) with unequal variances
+t.test(PathRich ~ BirdSex, data = df_feather, var.equal = FALSE)
+
+
+
 # Contingency Analysis
 
 # Confirm the column to be filtered
@@ -317,3 +352,53 @@ influential_points <- as.numeric(names(cook_dist)[cook_dist > (4/n)])
 model <- lm(y ~ x)
 std_residuals <- rstandard(model)
 
+
+# Analysis of Covariance (ANCOVA)
+# Allows you to compare the difference in means between different groups while controlling for
+# the variability of other variables (covariates).
+
+# RSS: The residual sum of squares for each model. 
+# Smaller values generally indicate a better fit to the data, although this needs to be considered
+# alongside other metrics.
+
+# Pr(>F): The p-value for the F-test. A small p-value (<0.05) would suggest that the interaction term is statistically significant.
+
+# Scatterplot by Sex
+ggplot(df_feather, aes(WingChord, PathRich, shape = BirdSex)) +
+  geom_point(size = 2) +
+  scale_shape_manual(values = c(16, 1)) +
+  labs(x = "Wing Chord", y = "Pathogen Richness")
+
+# Fit the main effects model (with no interaction term)
+featherNoInteractModel <- lm(PathRich ~ WingChord + BirdSex,
+                             data = df_feather)
+df_feather$fit0 <- predict(featherNoInteractModel)
+ggplot(df_feather, aes(WingChord, PathRich, colour = BirdSex,
+                       shape = BirdSex, linetype=BirdSex)) +
+  geom_line(aes(y = fit0), size = 1, color = "black") +
+  geom_point(size = 2) +
+  scale_colour_manual(values = c("black", "black")) +
+  scale_shape_manual(values = c(16, 1)) +
+  labs(x = "Wing Chord", y = "Pathogen Richness")
+
+summary(featherNoInteractModel)
+
+# Fit the interaction model
+featherInteractModel <- lm(PathRich ~ WingChord * BirdSex,
+                           data = df_feather)
+ggplot(df_feather, aes(WingChord, PathRich, colour = BirdSex,
+                       shape = BirdSex, linetype=BirdSex)) +
+  geom_smooth(method = "lm", size = 1, se = FALSE, col = "black") +
+  geom_point(size = 2) +
+  scale_colour_manual(values = c("black", "black")) +
+  scale_shape_manual(values = c(16, 1)) +
+  labs(x = "Wing Chord", y = "Pathogen Richness")
+
+summary(featherInteractModel)
+
+# ANOVA table
+anova(featherNoInteractModel, featherInteractModel)
+# No significant difference
+
+
+# Multivariate Analysis

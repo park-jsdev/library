@@ -206,6 +206,7 @@ library(factoextra)
 library(ggrepel)
 library(vegan)
 library(Hmisc)
+library(car)
 theme_set(theme_classic())
 
 ```
@@ -814,10 +815,6 @@ plot(PathRich ~ BirdWeight, data = df_feather)
 
 After removing the outliers, let us fit the linear model once again:
 
-fit_all \<- lm(PathRich \~ WingChord + BirdWeight + TailLen + TarsusLen, data = df_feather)
-
-summary(fit_all)
-
 ```{r}
 
 # Fit a linear model to each relationship
@@ -878,12 +875,7 @@ summary(fit_TailLen_TarsusLen)
 We shall compare the results by hand, to determine the models which result in p-values below the alpha level of 0.05, and have the highest Multiple R-squared values, Residual Standard Error, and Adjusted R-Squared values (if necessary).
 
 -   Wing chord and tarsus length has a p-value less than the alpha level of 0.05. It has an R-squared value of 0.54, Adjusted R-squared of 0.4916, and a RSE of 7.946 on 19 degrees of freedom.
-
-```{=html}
-<!-- -->
-```
 -   Bird weight and tarsus length has a p-value less than the alpha level of 0.05. It has an R-squared value of 0.2799, Adjusted R-squared of 0.2042, and a RSE of 9.941 on 19 degrees of freedom.
-
 -   Tail length and tarsus length has a p-value less than the alpha level of 0.05. It has an R-squared value of 0.4542, Adjusted R-squared of 0.3968, and a RSE of 8.655 on 19 degrees of freedom.
 
 From these results, the best model for predicting pathogen richness on feathers from two predictors is the wing chord and tarsus length model, based on all three metrics taken into consideration. This is in agreement with the single linear regression model results which suggested wing chord was one of the best predictors.
@@ -892,7 +884,135 @@ The single linear regression model suggested that tail length as also a signific
 
 -   Use a two-sample *t*-test to determine whether mean pathogen richness on feathers differs significantly between male and female birds. [Use R function **`t.test`**.]
 
--   Starting from the simple linear regression model in Question 12, use analysis of covariance to investigate whether the linear association in the model differs for male and female birds. [Use R functions **`lm`** and **`summary`**.]
+```{r}
+
+# Two-sample t-test
+# Determine whether the mean of the dependent variable differs significantly between the independent variables, i.e. compare the means of two groups to see if they are statistically different.
+
+# Assess normality and equal variance
+ggplot(df_feather, aes(x = PathRich)) +
+geom_histogram(col = "black", binwidth = 3,
+boundary = 0, closed = "left") +
+facet_wrap( ~ BirdSex, ncol = 1, scales = "free_y") +
+labs(x = "Pathogen richness", y = "Sex")
+
+# Q-Q Plot (Quantile-Quantile Plot)
+qqnorm(df_feather$PathRich)
+qqline(df_feather$PathRich)
+
+# Levene's Test to check for equal variance
+leveneTest(df_feather$PathRich ~ df_feather$BirdSex) # fail to reject the null hypothesis, suggesting it is reasonable to assume equal variances.
+
+# Check for missing values
+sum(is.na(df_feather$PathRich)) # none
+
+# Filter missing values (if there are any)
+#featherSub <- filter(df_feather, PathRich != "NA")
+
+# t-test assuming equal variance
+t.test(PathRich ~ BirdSex, data = df_feather, var.equal = TRUE)
+
+```
+
+From the results of the Two Sample t-test, as the p-value is less than the alpha level of 0.05, we fail to reject the null hypothesis that difference in the means is 0. We conclude that there is no reason to assume a significant difference in the means between sex.
+
+-   Starting from the simple linear regression model in Question 12, use analysis of covariance to investigate whether the linear association in the model differs for male and female birds. [Use R functions **`lm`** and **`summary`**.]
+
+```{r}
+
+# ANCOVA
+
+# Wing Chord
+
+# Scatterplot by Sex
+ggplot(df_feather, aes(WingChord, PathRich, shape = BirdSex)) +
+geom_point(size = 2) +
+scale_shape_manual(values = c(16, 1)) +
+labs(x = "Wing Chord", y = "Pathogen Richness")
+
+# Fit the main effects model (with no interaction term)
+featherNoInteractModel <- lm(PathRich ~ WingChord + BirdSex,
+data = df_feather)
+df_feather$fit0 <- predict(featherNoInteractModel)
+ggplot(df_feather, aes(WingChord, PathRich, colour = BirdSex,
+shape = BirdSex, linetype=BirdSex)) +
+geom_line(aes(y = fit0), size = 1, color = "black") +
+geom_point(size = 2) +
+scale_colour_manual(values = c("black", "black")) +
+scale_shape_manual(values = c(16, 1)) +
+labs(x = "Wing Chord", y = "Pathogen Richness")
+
+summary(featherNoInteractModel)
+
+# Fit the interaction model
+featherInteractModel <- lm(PathRich ~ WingChord * BirdSex,
+data = df_feather)
+ggplot(df_feather, aes(WingChord, PathRich, colour = BirdSex,
+shape = BirdSex, linetype=BirdSex)) +
+geom_smooth(method = "lm", size = 1, se = FALSE, col = "black") +
+geom_point(size = 2) +
+scale_colour_manual(values = c("black", "black")) +
+scale_shape_manual(values = c(16, 1)) +
+labs(x = "Wing Chord", y = "Pathogen Richness")
+
+summary(featherInteractModel)
+
+# ANOVA table
+anova(featherNoInteractModel, featherInteractModel)
+# No significant difference
+
+# Tail Length
+# Scatterplot by Sex
+ggplot(df_feather, aes(TailLen, PathRich, shape = BirdSex)) +
+geom_point(size = 2) +
+scale_shape_manual(values = c(16, 1)) +
+labs(x = "Tail Length", y = "Pathogen Richness")
+
+# Fit the main effects model (with no interaction term)
+featherNoInteractModel <- lm(PathRich ~ TailLen + BirdSex,
+data = df_feather)
+df_feather$fit0 <- predict(featherNoInteractModel)
+ggplot(df_feather, aes(TailLen, PathRich, colour = BirdSex,
+shape = BirdSex, linetype=BirdSex)) +
+geom_line(aes(y = fit0), size = 1, color = "black") +
+geom_point(size = 2) +
+scale_colour_manual(values = c("black", "black")) +
+scale_shape_manual(values = c(16, 1)) +
+labs(x = "Tail Length", y = "Pathogen Richness")
+
+summary(featherNoInteractModel)
+
+# Fit the interaction model
+featherInteractModel <- lm(PathRich ~ TailLen * BirdSex,
+data = df_feather)
+ggplot(df_feather, aes(TailLen, PathRich, colour = BirdSex,
+shape = BirdSex, linetype=BirdSex)) +
+geom_smooth(method = "lm", size = 1, se = FALSE, col = "black") +
+geom_point(size = 2) +
+scale_colour_manual(values = c("black", "black")) +
+scale_shape_manual(values = c(16, 1)) +
+labs(x = "Tail Length", y = "Pathogen Richness")
+
+summary(featherInteractModel)
+
+# ANOVA table
+anova(featherNoInteractModel, featherInteractModel)
+# No significant difference
+
+
+```
+
+Based on the results of the ANCOVA tests, we fail to reject the null hypothesis that there is no difference in the models, and conclude that there is no reason to assume statistically significant differences in linear association between bird sexes.
+
+-   Apply principal component analysis to the variables **`WingChord`**, **`BirdWeight`**, **`TailLen`**, and **`TarsusLen`**. [Use R functions **`scale`**, **`prcomp`**, and **`summary`**. Also, summarize the principal component loadings and use R function **`fviz_pca_ind`** with argument **`habillage`** to visualize the results and colour the observations by bird sex.]
+
+-   Fit a simple linear regression model with response variable **`PathRich`** and predictor variable equal to the first principal component from Question 16. Compare this model with the simple linear regression model in Question 12. [Use R functions **`lm`** and **`summary`**.]
+
+-   Fit a multiple linear regression model with response variable **`PathRich`** and predictor variables equal to the first two principal components from Question 16. Compare this model with the multiple linear regression model in Question 13. [Use R functions **`lm`** and **`summary`**.]
+
+-   Apply metric multidimensional scaling (MDS) to the dissimilarities data in the **`ChickadeeDissimilarities.csv`** file. [Use R function **`cmdscale`** to perform the metric MDS and use function **`ggplot`** to create a scatterplot that projects the data onto the first two principal coordinates. Then use the **`shape`** aesthetic to first mark the points by **`Habitat`** and then by **`Source`**.] Does the composition of the microbial communities appear to be related to **`Habitat`** or **`Source`**?
+
+-   Apply nonmetric multidimensional scaling (NMDS) to the dissimilarities data in the **`ChickadeeDissimilarities.csv`** file. [Use R function **`metaMDS`** to perform the NMDS and use function **`ggplot`** to create a scatterplot that projects the data onto the first two NMDS axes. Then use the **`shape`** aesthetic to first mark the points by **`Habitat`** and then by **`Source`**.] Does the composition of the microbial communities appear to be related to **`Habitat`** or **`Source`**?
 
 ## 6. Statistical Inference - Estimation (if applicable)
 
