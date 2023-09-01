@@ -16,3 +16,12 @@ rowSums(is.na(mydata))
 install.packages("visdat")
 library(visdat)
 vis_miss(mydata)
+
+# Remove rows with missing values
+scaledBirds_clean_rows <- na.omit(scaledBirds)
+
+# Remove columns with missing values
+scaledBirds_clean_cols <- scaledBirds[, colSums(is.na(scaledBirds)) == 0]
+
+# Remove Rows and Columns with missing values
+scaledBirds_clean <- na.omit(scaledBirds[, colSums(is.na(scaledBirds)) == 0])

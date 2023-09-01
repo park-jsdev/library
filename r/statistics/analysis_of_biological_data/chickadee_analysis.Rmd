@@ -31,6 +31,8 @@ There are various problems in this task, including descriptive studies, hypothes
 
 -   Clearly Define the questions to be answered or the hypotheses to be tested.
 
+-   Make sure all the information needed to answer each question is provided (e.g., for questions that ask you to do a test, state the hypotheses you\'re testing, the test statistic and p-value obtained from R, the decision based on a significance level of 5%, and the conclusion in the context of the question).
+
     #### (Graded)
 
     \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\--
@@ -64,8 +66,6 @@ There are various problems in this task, including descriptive studies, hypothes
 -   Use a two-sample *t*-test to determine whether mean pathogen richness on feathers differs significantly between male and female birds. [Use R function **`t.test`**.]
 
 -   Starting from the simple linear regression model in Question 12, use analysis of covariance to investigate whether the linear association in the model differs for male and female birds. [Use R functions **`lm`** and **`summary`**.]
-
-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\--
 
 -   Apply principal component analysis to the variables **`WingChord`**, **`BirdWeight`**, **`TailLen`**, and **`TarsusLen`**. [Use R functions **`scale`**, **`prcomp`**, and **`summary`**. Also, summarize the principal component loadings and use R function **`fviz_pca_ind`** with argument **`habillage`** to visualize the results and colour the observations by bird sex.]
 
@@ -181,6 +181,7 @@ For now, we will leave it as we develop a better understanding of the data and t
 ### Data Transformation
 
 -   Such as normalization, standardization, or logarithmic transformation if required.
+-   Generally, scaling is required when: variables are measured in different units, When the algorithm is based on distance or gradient, or for interpretability.
 
 ## 3. Exploratory Data Analysis
 
@@ -207,6 +208,13 @@ library(ggrepel)
 library(vegan)
 library(Hmisc)
 library(car)
+library(pheatmap)
+library(photobiology)
+library(ggrepel)
+library(reshape2)
+library(rgl)
+library(vcd)
+library(ade4)
 theme_set(theme_classic())
 
 ```
@@ -1004,15 +1012,324 @@ anova(featherNoInteractModel, featherInteractModel)
 
 Based on the results of the ANCOVA tests, we fail to reject the null hypothesis that there is no difference in the models, and conclude that there is no reason to assume statistically significant differences in linear association between bird sexes.
 
+Let us now perform some multivariate methods on the original dataset (feather and nest group) of the pathogen groups:
+
+```{r}
+
+# Correlation matrix
+
+# Select only numeric columns
+numeric_data <- select_if(chickadeeData, is.numeric)
+
+# Calculate the correlation matrix
+cor_matrix <- cor(numeric_data)
+print(cor_matrix)
+
+# Pick column pairs
+
+# Scatter plot matrix (pairs)
+ggpairs(chickadeeData[, c("EscShi", "Entero")], axisLabels = "none") +
+theme_bw()
+
+# Clustered Heatmap of Correlations between variables
+numeric_variables <- chickadeeData[, c("EscShi", "Entero", "PathRich")]
+pheatmap(cor(numeric_variables), cell.width = 10, cell.height = 10)
+
+# Centering and Scaling the Data
+apply(numeric_data, 2, mean)
+apply(numeric_data, 2, sd)
+scaledBirds <- scale(numeric_data)
+apply(numeric_data, 2, mean)
+apply(numeric_data, 2, sd)
+
+# Display in scatterplot marked by sex
+ggplot(data.frame(scaledBirds, sex = chickadeeData$BirdSex),
+aes(x = EscShi, y = Entero, group = sex)) +
+geom_point(aes(color = sex), size = 3)
+
+
+```
+
+Simply said, we find that the magnitude of correlation between pathogen groups are low.
+
 -   Apply principal component analysis to the variables **`WingChord`**, **`BirdWeight`**, **`TailLen`**, and **`TarsusLen`**. [Use R functions **`scale`**, **`prcomp`**, and **`summary`**. Also, summarize the principal component loadings and use R function **`fviz_pca_ind`** with argument **`habillage`** to visualize the results and colour the observations by bird sex.]
+
+```{r}
+
+# Quick PCA
+
+# Gather the numeric variables
+numeric_variables <- chickadeeData[, c("WingChord", "BirdWeight", "TailLen", "TarsusLen")]
+
+scaledBirds <- data.frame(scale(numeric_variables))
+
+ggplot(scaledBirds, aes(x = WingChord, y = BirdWeight)) +
+geom_point(size = 2, shape = 21) +
+geom_point(aes(y = 0), colour = "red") +
+geom_segment(aes(xend = WingChord, yend = 0),
+colour = "red",
+arrow = arrow(length = unit(0.15, "cm")))
+
+scaledBirds_clean_rows <- na.omit(scaledBirds)
+# clustered heatmap of correlations
+pheatmap(cor(scaledBirds_clean_rows), treeheight_row = 0.2)
+
+# Perform PCA
+pca_result <- prcomp(scaledBirds_clean_rows, center = TRUE, scale. = TRUE) 
+# center and scale. are usually TRUE for standardized data, but since the data is already scaled, they are not strictly necessary
+
+summary_pca <- summary(pca_result)
+print(summary_pca)
+
+# Explain the first 2 principal components (rotation matrix)
+pca_result$rotation[, 1:2]
+
+pca_result$sdev # standard deviations
+pca_result$sdev^2 # eigenvalues/variances
+pca_result$sdev^2 / sum(pca_result$sdev^2) # proportion of variance
+
+get_eig(pca_result) # eigenvalues/variances
+fviz_eig(pca_result, geom = "bar", bar_width = 0.4) +
+ggtitle("")
+
+# Scree Plot
+fviz_eig(pca_result, addlabels = TRUE)
+
+# Biplot of attributes
+fviz_pca_var(pca_result, col.var = "black")
+
+# Contribution of each variable
+fviz_cos2(pca_result, choice = "var", axes = 1:2)
+
+# Biplot combined with cos2
+fviz_pca_var(pca_result, col.var = "cos2",
+            gradient.cols = c("black", "orange", "green"),
+            repel = TRUE)
+
+# PCA Scatter Plot
+chickadee_clean_rows <- na.omit(chickadeeData) # we need to ensure the rows are equal from the dataset not used in the pca
+
+fviz_pca_ind(pca_result, habillage = chickadee_clean_rows$BirdSex,
+geom = "point") +
+ggtitle("") +
+ylim(c(-6.5,7.5)) +
+coord_fixed()
+
+# PCA BiPlot
+fviz_pca_biplot(pca_result, geom = "point",
+habillage = chickadee_clean_rows$BirdSex,
+col.var = "violet", addEllipses = TRUE,
+ellipse.level = 0.69) +
+ggtitle("") +
+ylim(c(-4,5)) +
+coord_fixed()
+
+
+```
+
+From the biplot of the variables with respect to the principal components, we can observe that the female group is lower in both dimensions, compared to the male group. We see that Tarsus length is least correlated to the other variables, while the other three are positively correlated to each other. Furthermore, we observe that tarsus length, wing chord, and tail length are the top contributors to the principal components.
 
 -   Fit a simple linear regression model with response variable **`PathRich`** and predictor variable equal to the first principal component from Question 16. Compare this model with the simple linear regression model in Question 12. [Use R functions **`lm`** and **`summary`**.]
 
+```{r}
+
+# Extract the principal component scores
+pc1_scores <- pca_result$x[, 1]
+pc2_scores <- pca_result$x[, 2]
+
+# Fit a linear model to each relationship
+fit_PC1 <- lm(chickadee_clean_rows$PathRich ~ pc1_scores)
+
+# Make predictions using the linear model
+chickadee_clean_rows$pc1_predicted <- predict(fit_PC1, newdata = chickadee_clean_rows)
+
+# Scatterplot by Sex
+ggplot(chickadee_clean_rows, aes(x = pc1_scores, y = PathRich)) +
+  geom_point(aes(shape = BirdSex, color = BirdSex), size = 2) + 
+  scale_shape_manual(values = c(16, 1)) +
+  geom_line(aes(y = pc1_predicted), size = 1, color = "black") + 
+  labs(x = "Dimension 1", y = "Pathogen Richness") +
+  scale_colour_manual(values = c("red", "blue"))
+
+
+# Make predictions using the previous simple linear model
+fit_WingChord_cleaned <- lm(chickadee_clean_rows$PathRich ~ chickadee_clean_rows$WingChord)
+chickadee_clean_rows$predicted_WingChord <- predict(fit_WingChord_cleaned, newdata = chickadee_clean_rows)
+
+# Scatterplot by Sex with both models (along Dimension 1)
+ggplot(chickadee_clean_rows, aes(x = pc1_scores, y = PathRich)) +
+  geom_point(aes(shape = BirdSex, color = BirdSex), size = 2) + 
+  scale_shape_manual(values = c(16, 1)) +
+  geom_line(aes(y = pc1_predicted), size = 1, color = "black") + 
+    geom_line(aes(x = pc1_scores, y = predicted_WingChord), size = 1, color = "orange", linetype = "dashed") +
+  labs(x = "Dimension 1", y = "Pathogen Richness") +
+  scale_colour_manual(values = c("red", "blue"))
+
+# Summarize the fits
+summary(fit_PC1)
+summary(fit_WingChord_cleaned)
+summary(fit_WingChord)
+
+```
+
+The linear model using the first principal component
+
+.. Redo PCA and linear model using df_feather
+
 -   Fit a multiple linear regression model with response variable **`PathRich`** and predictor variables equal to the first two principal components from Question 16. Compare this model with the multiple linear regression model in Question 13. [Use R functions **`lm`** and **`summary`**.]
+
+```{r}
+
+# Extract the principal component scores
+pc1_scores <- pca_result$x[, 1]
+pc2_scores <- pca_result$x[, 2]
+
+# Fit a linear model to each relationship for principal components
+fit_all_PC <- lm(chickadee_clean_rows$PathRich ~ pc1_scores + pc2_scores)
+
+# Compare summaries
+summary(fit_all_PC)
+summary(fit_all)
+
+```
+
+Redo based on df_feather
 
 -   Apply metric multidimensional scaling (MDS) to the dissimilarities data in the **`ChickadeeDissimilarities.csv`** file. [Use R function **`cmdscale`** to perform the metric MDS and use function **`ggplot`** to create a scatterplot that projects the data onto the first two principal coordinates. Then use the **`shape`** aesthetic to first mark the points by **`Habitat`** and then by **`Source`**.] Does the composition of the microbial communities appear to be related to **`Habitat`** or **`Source`**?
 
+```{r}
+
+# Microbial community composition data for 2607 taxa was also used to calculate Bray Curtis dissimilarities between the 47 sites
+distChickadee <- read.csv("ChickadeeDissimilarities.csv", row.names=1)
+distChickadee[1:6, 1:6]
+
+# clustered heatmap
+pheatmap(distChickadee[1:12, 1:12], cluster_rows = TRUE,
+treeheight_row = 0.0001, treeheight_col = 0.8,
+fontsize_col = 8, cellwidth = 13, cellheight = 13)
+
+# Classical (metric) multidimensional scaling (MDS), also known as principal coordinates analysis
+MDSChickadee <- cmdscale(distChickadee, eig = TRUE)
+
+# Create a plotbar function to plot the eigenvalues in a scree plot.
+plotbar <- function(res, m = 9) {
+ggplot(data.frame(list(eig = res$eig[seq_len(m)],
+k = seq(along = res$eig[seq_len(m)]))),
+aes(x = k, y = eig)) +
+scale_x_discrete("k", limits = factor(seq_len(m))) +
+theme_minimal() +
+geom_bar(stat="identity", width=0.5, color="orange",
+fill="pink")
+}
+
+plotbar(MDSChickadee, m = 5)
+
+# Project the cities onto the first two coordinates created from the distances.
+MDSChick <- data.frame(list(PCo1 = MDSChickadee$points[, 1],
+PCo2 = MDSChickadee$points[, 2],
+labs = rownames(MDSChickadee$points)))
+ggplot(MDSChick, aes(x = PCo1, y = PCo2, label = labs)) +
+geom_point(color = "red") +
+#xlim(-1950, 2000) +
+#ylim(-1150, 1200) +
+coord_fixed() +
+geom_text_repel(size = 4, max.overlaps = 100)
+
+#To re-orient the “map” so north is at the top and west is on the left, reverse the signs of the principal coordinates:
+ggplot(MDSChick, aes(x = -PCo1, y = -PCo2, label = labs)) +
+geom_point(color = "red") +
+coord_fixed() +
+geom_text_repel(size = 4, max.overlaps = 100)
+
+# Merge the datasets
+MDSChick_merged <- merge(MDSChick, chickadeeData, by.x = "labs", by.y = "Site")
+print(MDSChick_merged)
+
+# By Habitat
+ggplot(MDSChick_merged, aes(x = PCo1, y = PCo2)) +
+  geom_point(aes(shape = Habitat)) +
+  coord_fixed() +
+  scale_shape_manual(values = c(16, 17, 18))
+
+# Zoom in
+ggplot(MDSChick_merged, aes(x = PCo1, y = PCo2)) +
+  geom_point(aes(shape = Habitat)) +
+  xlim(-0.25, 0.25) +
+  ylim(-0.25, 0.25) +
+  coord_fixed() +
+  scale_shape_manual(values = c(16, 17, 18))
+
+# By Source
+ggplot(MDSChick_merged, aes(x = PCo1, y = PCo2)) +
+  geom_point(aes(shape = Source)) +
+  coord_fixed() +
+  scale_shape_manual(values = c(16, 17))
+
+# Zoom in
+ggplot(MDSChick_merged, aes(x = PCo1, y = PCo2)) +
+  geom_point(aes(shape = Source)) +
+  xlim(-0.25, 0.25) +
+  ylim(-0.25, 0.25) +
+  coord_fixed() +
+  scale_shape_manual(values = c(16, 17))
+
+```
+
+Upon visual inspection of the MDS, microbial community composition appears to be more closely associated with source.
+
 -   Apply nonmetric multidimensional scaling (NMDS) to the dissimilarities data in the **`ChickadeeDissimilarities.csv`** file. [Use R function **`metaMDS`** to perform the NMDS and use function **`ggplot`** to create a scatterplot that projects the data onto the first two NMDS axes. Then use the **`shape`** aesthetic to first mark the points by **`Habitat`** and then by **`Source`**.] Does the composition of the microbial communities appear to be related to **`Habitat`** or **`Source`**?
+
+```{r}
+
+# Nonmetric Multidimensional Scaling (NMDS)
+
+# Recall that NMDS is more robust as it does not use metric distances, but it is more computationally intensive
+
+# Create a function to conduct a nonmetric multidimensional scaling (NMDS) by running the metaMDS function (in the vegan package) multiple times for a range of possible values for k (the number of dimensions) and recording the stress values (a measure of goodness of fit; the lower the better):
+
+nmds.stress <- function(x, sim = 100, kmax = 4) {
+sapply(seq_len(kmax), function(k)
+replicate(sim, metaMDS(x, k = k, autotransform = FALSE)$stress))
+}
+
+stress <- nmds.stress(distChickadee, sim = 100)
+
+# Look at boxplots of the results as a diagnostic plot to choose k:
+dfstr <- melt(stress, varnames = c("replicate","dimensions"))
+ggplot(dfstr, aes(y = value, x = dimensions, group = dimensions)) +
+geom_boxplot()
+
+# Compare the observed distances and their approximations using a Shepard plot for k = 2:
+nmdsk2 <- metaMDS(distChickadee, k = 2, autotransform = FALSE)
+stressplot(nmdsk2, pch = 20)
+
+# Plot the different colors using the first two NMDS axes and notice the results are similar to the MDS solution in this case:
+
+dfnmdsk2 <-
+data.frame(list(NmMDS1 = nmdsk2$points[,1],
+NmMDS2 = nmdsk2$points[,2],
+Site = rownames(distChickadee)
+))
+
+# Merge the two data frames by the common column
+merged_df <- merge(dfnmdsk2, chickadeeData, by = "Site")
+
+# Plotting by Habitat
+ggplot(merged_df, aes(x = NmMDS1, y = NmMDS2)) +
+  geom_point(aes(colour = Habitat), size = 4) +
+  geom_text_repel(aes(label = Site), size = 3, max.overlaps = 100)
+
+# Plotting by Source
+ggplot(merged_df, aes(x = NmMDS1, y = NmMDS2)) +
+  geom_point(aes(colour = Source), size = 4) +
+  geom_text_repel(aes(label = Site), size = 3, max.overlaps = 100)
+
+
+```
+
+The Shepard plot suggests that both the linear and non-metric fits are excellent fits, and indicates that the lower-dimensional representation of the data is capturing almost all of the dissimilarity structure in the original high-dimensional data. The higher R-squared value in the Non-Metric Fit suggests that the NMDS solution is a slightly better model, strictly considering R-squared.
+
+From these scatter plots, the composition of the microbial communities appear to be related more to source, rather than habitat.
 
 ## 6. Statistical Inference - Estimation (if applicable)
 

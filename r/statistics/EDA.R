@@ -132,6 +132,95 @@ boxcox(model)
 # Square Root: sqrt(variable)
 # Inverse: 1 / variable
 
+# Centering and Scaling Data
+apply(turtles[,-1], 2, mean)
+apply(turtles[,-1], 2, sd)
+scaledTurtles <- scale(turtles[, -1])
+
+apply(scaledTurtles, 2, mean)
+apply(scaledTurtles, 2, sd)
+
+ggplot(data.frame(scaledTurtles, sex = turtles[,1]),
+       aes(x = width, y = height, group = sex)) +
+  geom_point(aes(color = sex), size = 3)
+
+# Dimension Reduction
+
+# Singular Value Decomposition (SVD) to find Principal Components
+
+# Plotting Observations in the Principal Plane
+
+# Principal Component Analysis
+# We can perform PCA with princomp, prcomp, or dudi.pca
+
+# Quick PCA
+
+# Gather the numeric variables
+numeric_variables <- chickadeeData[, c("WingChord", "BirdWeight", "TailLen", "TarsusLen")]
+
+scaledBirds <- data.frame(scale(numeric_variables))
+
+ggplot(scaledBirds, aes(x = WingChord, y = BirdWeight)) +
+  geom_point(size = 2, shape = 21) +
+  geom_point(aes(y = 0), colour = "red") +
+  geom_segment(aes(xend = WingChord, yend = 0),
+               colour = "red",
+               arrow = arrow(length = unit(0.15, "cm")))
+
+scaledBirds_clean_rows <- na.omit(scaledBirds)
+# clustered heatmap of correlations
+pheatmap(cor(scaledBirds_clean_rows), treeheight_row = 0.2)
+
+# Perform PCA
+pca_result <- prcomp(scaledBirds_clean_rows, center = TRUE, scale. = TRUE) 
+# center and scale. are usually TRUE for standardized data, but since the data is already scaled, they are not strictly necessary
+
+summary_pca <- summary(pca_result)
+print(summary_pca)
+
+# Explain the first 2 principal components (rotation matrix)
+pca_result$rotation[, 1:2]
+
+pca_result$sdev # standard deviations
+pca_result$sdev^2 # eigenvalues/variances
+pca_result$sdev^2 / sum(pca_result$sdev^2) # proportion of variance
+
+get_eig(pca_result) # eigenvalues/variances
+fviz_eig(pca_result, geom = "bar", bar_width = 0.4) +
+  ggtitle("")
+
+# Scree Plot
+fviz_eig(pca_result, addlabels = TRUE)
+
+# Biplot of attributes
+fviz_pca_var(pca_result, col.var = "black")
+
+# Contribution of each variable
+fviz_cos2(pca_result, choice = "var", axes = 1:2)
+
+# Biplot combined with cos2
+fviz_pca_var(pca_result, col.var = "cos2",
+             gradient.cols = c("black", "orange", "green"),
+             repel = TRUE)
+
+# PCA Scatter Plot
+chickadee_clean_rows <- na.omit(chickadeeData) # we need to ensure the rows are equal from the dataset not used in the pca
+
+fviz_pca_ind(pca_result, habillage = chickadee_clean_rows$BirdSex,
+             geom = "point") +
+  ggtitle("") +
+  ylim(c(-6.5,7.5)) +
+  coord_fixed()
+
+# PCA BiPlot
+fviz_pca_biplot(pca_result, geom = "point",
+                habillage = chickadee_clean_rows$BirdSex,
+                col.var = "violet", addEllipses = TRUE,
+                ellipse.level = 0.69) +
+  ggtitle("") +
+  ylim(c(-4,5)) +
+  coord_fixed()
+
 
 # Summary Statistics
 
@@ -402,3 +491,348 @@ anova(featherNoInteractModel, featherInteractModel)
 
 
 # Multivariate Analysis
+
+# Correlation Matrix
+# we must ensure that we select only numerical columns
+cor_matrix <- cor(my_data)
+
+# Manually specifying columns indices or names:
+# Using column indices
+cor_matrix <- cor(my_data[, c(1, 3, 4)])
+
+# Using column names
+cor_matrix <- cor(my_data[, c("var1", "var2", "var3")])
+
+# Automatically detect and select numeric indices
+library(dplyr)
+
+# Select only numeric columns
+numeric_data <- select_if(my_data, is.numeric)
+
+# Calculate the correlation matrix
+cor_matrix <- cor(numeric_data)
+
+# Pick column pairs
+
+# Scatter plot matrix (pairs)
+ggpairs(chickadeeData[, c("EscShi", "Entero")], axisLabels = "none") +
+  theme_bw()
+
+# Clustered Heatmap of Correlations between variables
+numeric_variables <- chickadeeData[, c("EscShi", "Entero", "PathRich")]
+pheatmap(cor(numeric_variables), cell.width = 10, cell.height = 10)
+
+
+# Visualize a correlation matrix by melting
+
+# Melt the correlation matrix to long format
+melted_cormat <- melt(cor_matrix)
+
+
+# Create the heatmap using ggplot2
+ggplot(data = melted_cormat, aes(x=Var1, y=Var2)) +
+  geom_tile(aes(fill = value), color = "white") +
+  scale_fill_gradient2(low = "blue", high = "red", mid = "white", 
+                       midpoint = 0, limit = c(-1,1), space = "Lab", 
+                       name="Pearson\nCorrelation") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, size = 12, hjust = 1)) +
+  coord_fixed()
+
+
+# Linear Regression Using Principal Components
+
+# Extract the principal component scores
+pc1_scores <- pca_result$x[, 1]
+pc2_scores <- pca_result$x[, 2]
+
+# Fit a linear model to each relationship
+fit_PC1 <- lm(chickadee_clean_rows$PathRich ~ pc1_scores)
+
+# Make predictions using the linear model
+chickadee_clean_rows$pc1_predicted <- predict(fit_PC1, newdata = chickadee_clean_rows)
+
+# Scatterplot by Sex
+ggplot(chickadee_clean_rows, aes(x = pc1_scores, y = PathRich)) +
+  geom_point(aes(shape = BirdSex, color = BirdSex), size = 2) + 
+  scale_shape_manual(values = c(16, 1)) +
+  geom_line(aes(y = pc1_predicted), size = 1, color = "black") + 
+  labs(x = "Dimension 1", y = "Pathogen Richness") +
+  scale_colour_manual(values = c("red", "blue"))
+
+
+# Make predictions using the previous simple linear model
+fit_WingChord_cleaned <- lm(chickadee_clean_rows$PathRich ~ chickadee_clean_rows$WingChord)
+chickadee_clean_rows$predicted_WingChord <- predict(fit_WingChord_cleaned, newdata = chickadee_clean_rows)
+
+# Scatterplot by Sex with both models (along Dimension 1)
+ggplot(chickadee_clean_rows, aes(x = pc1_scores, y = PathRich)) +
+  geom_point(aes(shape = BirdSex, color = BirdSex), size = 2) + 
+  scale_shape_manual(values = c(16, 1)) +
+  geom_line(aes(y = pc1_predicted), size = 1, color = "black") + 
+  geom_line(aes(x = pc1_scores, y = predicted_WingChord), size = 1, color = "orange", linetype = "dashed") +
+  labs(x = "Dimension 1", y = "Pathogen Richness") +
+  scale_colour_manual(values = c("red", "blue"))
+
+# Summarize the fits
+summary(fit_PC1)
+summary(fit_WingChord_cleaned)
+summary(fit_WingChord)
+
+
+# Multidimensional Scaling (MDS) and Ordination
+
+# Microbial community composition data for 2607 taxa was also used to calculate Bray Curtis dissimilarities between the 47 sites
+distChickadee <- read.csv("ChickadeeDissimilarities.csv", row.names=1)
+distChickadee[1:6, 1:6]
+
+# clustered heatmap
+pheatmap(distChickadee[1:12, 1:12], cluster_rows = TRUE,
+         treeheight_row = 0.0001, treeheight_col = 0.8,
+         fontsize_col = 8, cellwidth = 13, cellheight = 13)
+
+# Classical (metric) multidimensional scaling (MDS), also known as principal coordinates analysis
+MDSChickadee <- cmdscale(distChickadee, eig = TRUE)
+
+# Create a plotbar function to plot the eigenvalues in a scree plot.
+plotbar <- function(res, m = 9) {
+  ggplot(data.frame(list(eig = res$eig[seq_len(m)],
+                         k = seq(along = res$eig[seq_len(m)]))),
+         aes(x = k, y = eig)) +
+    scale_x_discrete("k", limits = factor(seq_len(m))) +
+    theme_minimal() +
+    geom_bar(stat="identity", width=0.5, color="orange",
+             fill="pink")
+}
+
+plotbar(MDSChickadee, m = 5)
+
+# Project the cities onto the first two coordinates created from the distances.
+MDSChick <- data.frame(list(PCo1 = MDSChickadee$points[, 1],
+                            PCo2 = MDSChickadee$points[, 2],
+                            labs = rownames(MDSChickadee$points)))
+ggplot(MDSChick, aes(x = PCo1, y = PCo2, label = labs)) +
+  geom_point(color = "red") +
+  #xlim(-1950, 2000) +
+  #ylim(-1150, 1200) +
+  coord_fixed() +
+  geom_text_repel(size = 4, max.overlaps = 100)
+
+#To re-orient the “map” so north is at the top and west is on the left, reverse the signs of the principal coordinates:
+ggplot(MDSChick, aes(x = -PCo1, y = -PCo2, label = labs)) +
+  geom_point(color = "red") +
+  coord_fixed() +
+  geom_text_repel(size = 4, max.overlaps = 100)
+
+# Merge the datasets
+MDSChick_merged <- merge(MDSChick, chickadeeData, by.x = "labs", by.y = "Site")
+print(MDSChick_merged)
+
+# By Habitat
+ggplot(MDSChick_merged, aes(x = PCo1, y = PCo2)) +
+  geom_point(aes(shape = Habitat)) +
+  coord_fixed() +
+  scale_shape_manual(values = c(16, 17, 18))
+
+# Zoom in
+ggplot(MDSChick_merged, aes(x = PCo1, y = PCo2)) +
+  geom_point(aes(shape = Habitat)) +
+  xlim(-0.25, 0.25) +
+  ylim(-0.25, 0.25) +
+  coord_fixed() +
+  scale_shape_manual(values = c(16, 17, 18))
+
+# By Source
+ggplot(MDSChick_merged, aes(x = PCo1, y = PCo2)) +
+  geom_point(aes(shape = Source)) +
+  coord_fixed() +
+  scale_shape_manual(values = c(16, 17))
+
+# Zoom in
+ggplot(MDSChick_merged, aes(x = PCo1, y = PCo2)) +
+  geom_point(aes(shape = Source)) +
+  xlim(-0.25, 0.25) +
+  ylim(-0.25, 0.25) +
+  coord_fixed() +
+  scale_shape_manual(values = c(16, 17))
+
+# Faceting by Habitat
+ggplot(MDSChick_merged, aes(x = PCo1, y = PCo2)) +
+  geom_point(aes(shape = Source)) +
+  facet_wrap(~ Habitat) 
+
+# Faceting by Source
+ggplot(MDSChick_merged, aes(x = PCo1, y = PCo2)) +
+  geom_point(aes(shape = Habitat)) +
+  facet_wrap(~ Source) 
+
+# Faceting by both
+ggplot(MDSChick_merged, aes(x = PCo1, y = PCo2)) +
+  geom_point(aes(shape = Habitat, color = Source)) +
+  coord_fixed() +
+  facet_grid(Habitat ~ Source) +
+  scale_shape_manual(values = c(16, 17, 18))
+
+
+# Nonmetric Multidimensional Scaling (NMDS)
+
+# Recall that NMDS is more robust as it does not use metric distances, but it is more computationally intensive
+
+# Create a function to conduct a nonmetric multidimensional scaling (NMDS) by running the metaMDS
+#function (in the vegan package) multiple times for a range of possible values for k
+# (the number of dimensions) and recording the stress values (a measure of goodness of fit; the lower the better):
+
+nmds.stress <- function(x, sim = 100, kmax = 4) {
+  sapply(seq_len(kmax), function(k)
+    replicate(sim, metaMDS(x, k = k, autotransform = FALSE)$stress))
+}
+
+stress <- nmds.stress(distChickadee, sim = 100)
+
+# Look at boxplots of the results as a diagnostic plot to choose k:
+dfstr <- melt(stress, varnames = c("replicate","dimensions"))
+ggplot(dfstr, aes(y = value, x = dimensions, group = dimensions)) +
+  geom_boxplot()
+
+# Compare the observed distances and their approximations using a Shepard plot for k = 2:
+nmdsk2 <- metaMDS(distChickadee, k = 2, autotransform = FALSE)
+stressplot(nmdsk2, pch = 20)
+
+# Plot the different colors using the first two NMDS axes and notice the results are similar to the MDS solution in this case:
+
+dfnmdsk2 <-
+  data.frame(list(NmMDS1 = nmdsk2$points[,1],
+                  NmMDS2 = nmdsk2$points[,2],
+                  Site = rownames(distChickadee)
+  ))
+
+# Merge the two data frames by the common column
+merged_df <- merge(dfnmdsk2, chickadeeData, by = "Site")
+
+# Plotting by Habitat
+ggplot(merged_df, aes(x = NmMDS1, y = NmMDS2)) +
+  geom_point(aes(colour = Habitat), size = 4) +
+  geom_text_repel(aes(label = Site), size = 3, max.overlaps = 100)
+
+# Plotting by Source
+ggplot(merged_df, aes(x = NmMDS1, y = NmMDS2)) +
+  geom_point(aes(colour = Source), size = 4) +
+  geom_text_repel(aes(label = Site), size = 3, max.overlaps = 100)
+
+
+# Parallelizing Code
+
+# Load the libraries
+library(foreach)
+library(doParallel)
+
+# Register the parallel backend
+registerDoParallel(cores = 4)  # Replace '4' with the number of available cores
+
+# Define the NMDS function
+nmds.stress <- function(x, sim = 100, kmax = 4) {
+  foreach(k = seq_len(kmax), .combine = 'c', .packages = 'vegan') %dopar% {
+    replicate(sim, metaMDS(x, k = k, autotransform = FALSE)$stress)
+  }
+}
+
+# Run the NMDS function
+stress <- nmds.stress(distChickadee, sim = 100)
+
+
+
+# Correspondence Analysis (CA) for Contingency Tables: One Categorical Variable
+
+# Consider the data on HIV mutations (the data consists of a mutation co-occurrence matrix):
+cooc <- read.csv("CooccurHIV.csv", row.names=1)
+cooc[1:6, 1:6]
+
+# A chi-squared test of independence strongly suggests the co-occurrence of mutations is not independent:
+chisq.test(cooc, correct = FALSE)
+
+# X-squared = 724268, df = 22201, p-value < 2.2e-16
+
+# Conduct a correspondence analysis (CA), also known as dual scaling, using the dudi.coa function (in the ade4 package):
+HIVca<- dudi.coa(cooc, scannf = FALSE, nf = 4)
+summary(HIVca)
+
+fviz_eig(HIVca, geom = "bar", bar_width = 0.6) +
+  ggtitle("")
+
+# Plot the mutations in a lower dimensional projection, in this case three dimensions (“spin” the plot to see the structure):
+CA1 <- HIVca$li[,1]
+CA2 <- HIVca$li[,2]
+CA3 <- HIVca$li[,3]
+plot3d(CA1, CA2, CA3, aspect = FALSE, col = "purple")
+
+# We can also consider static two-dimensional views by plotting two eigenvectors at a time:
+  fviz_ca_row(HIVca,axes = c(1, 2), geom="text", col.row="purple",
+              labelsize=3) +
+  ggtitle("") +
+  xlim(-0.55, 1.7) +
+  ylim(-0.53, 1.1) +
+  theme_bw() +
+  coord_fixed() # first eigenvector versus second eigenvector
+
+fviz_ca_row(HIVca,axes = c(1, 3), geom="text",col.row="purple",
+            labelsize=3) +
+  ggtitle("") +
+  xlim(-0.55, 1.7) +
+  ylim(-0.5, 0.6) +
+  theme_bw() +
+  coord_fixed() # first eigenvector versus third eigenvector
+
+
+# CA for Contingency Tables: Two Categorical Variables
+HairEyeColor <-
+  array(c(36,66,16,4,9,34,7,64,5,29,7,5,2,14,7,8),
+        dim=c(4,4),
+        dimnames=list(Hair=c("Black","Brown","Red","Blond"),
+                      Eye=c("Brown","Blue","Hazel","Green")))
+
+HairEyeColor
+
+# A chi-squared test of independence indicates hair-color and eye-color are not independent:
+chisq.test(HairEyeColor)
+
+# X-squared = 106.66, df = 9, p-value < 2.2e-16
+
+# We can calculate expected frequencies under independence and confirm the chi-squared test statistic:
+rowsums <- as.matrix(apply(HairEyeColor,1,sum))
+colsums <- as.matrix(apply(HairEyeColor,2,sum))
+HCexp <- rowsums%*%t(colsums)/sum(colsums)
+
+HCexp
+
+sum((HairEyeColor - HCexp)^2 / HCexp) # chi-squared statistic = 106.6637
+
+# We can then study the residuals from the expected table numerically and visually in a mosaic plot:
+round(t(HairEyeColor - HCexp)) # residuals from the expected table
+mosaicplot(HairEyeColor, shade = TRUE, las = 1, type = "pearson",
+           cex.axis = 0.7, main = "")
+
+# Conduct a CA using the dudi.coa function:
+  coaHC <- dudi.coa(HairEyeColor, scannf = FALSE, nf = 2)
+
+summary(coaHC)
+
+# Calculate the proportion of the chi-squared statistic explained by each axis of the CA
+# by finding the ratio of each eigenvalue to the sum of the eigenvalues:
+round(coaHC$eig[1:3]/sum(coaHC$eig), 2) # 0.89 0.10 0.02
+
+# Create a biplot to visualize co-occurrence of the categories using the fviz_ca_biplot function:
+fviz_ca_biplot(coaHC, repel=TRUE, col.col = "brown",
+  col.row = "purple") +
+  ggtitle("") +
+  ylim(c(-0.5,0.5)) +
+  coord_fixed()
+
+# Alternatively, conduct a CA using the cca function (in the vegan package):
+res.ca <- cca(HairEyeColor)
+plot(res.ca, scaling = 3)
+plot(c(-1, 1.5), c(-1, 1), type = "n", xlab = "CA1", ylab = "CA2",
+xlim = c(-1, 1.5), ylim = c(-1, 1))
+text(res.ca, display = "sites", scaling = 3, col = "black",
+     cex = 0.8)
+text(res.ca, display = "species", scaling = 3, col = "red",
+     cex = 0.8)
