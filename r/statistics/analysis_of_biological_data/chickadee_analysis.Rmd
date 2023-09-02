@@ -1,7 +1,15 @@
 ---
 title: "R Notebook"
-output: html_notebook
+author: "Junsoo Park"
+date: "2023-09-02"
+output:
+  pdf_document: default
+  html_notebook: default
 ---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
 
 # Chickadee Pathogen Data Statistical Analysis
 
@@ -31,7 +39,7 @@ There are various problems in this task, including descriptive studies, hypothes
 
 -   Clearly Define the questions to be answered or the hypotheses to be tested.
 
--   Make sure all the information needed to answer each question is provided (e.g., for questions that ask you to do a test, state the hypotheses you\'re testing, the test statistic and p-value obtained from R, the decision based on a significance level of 5%, and the conclusion in the context of the question).
+-   Make sure all the information needed to answer each question is provided (e.g., for questions that ask you to do a test, state the hypotheses you're testing, the test statistic and p-value obtained from R, the decision based on a significance level of 5%, and the conclusion in the context of the question).
 
     #### (Graded)
 
@@ -403,7 +411,11 @@ Some initial exploration of the variables have given us some familiarity with th
 
 ### Dimensionality Reduction
 
--   Techniques like t-SNE in addition to PCA, especially for visualizing high-dimensional data.
+-   Techniques like t-SNE in addition to PCA, MDS or NMDS, especially for visualizing high-dimensional data. Dimensionality reduction reveals the fundamental structure of the data.
+
+-   PCA can help to identify groups of variables which are significant, and helps to reduce noise.
+
+-   Factor Analysis, where the goal is interpretability. FA assumes that there exists an underlying fundamental structure of the data, or underlying latent variables - called "factors" - that influence the observable variables in the data, but are not directly observable themselves.
 
 ### Other Techniques
 
@@ -468,9 +480,9 @@ unique(chickadeeData$CommRich)
 # They are already ordered
 
 # Order the categories as desired by turning into a factor variable (if needed. This is useful for more than 2 categories)
-CommRich_BirdSex_table$CommRich <-
-factor(CommRich_BirdSex_table$CommRich,
-levels = c("low", "high"))
+#CommRich_BirdSex_table$CommRich <-
+#factor(CommRich_BirdSex_table$CommRich,
+#levels = c("low", "high"))
 
 # Create 2x2 Contingency Table for community richness and sex
 CommRich_BirdSex_table <- table(df_feather$CommRich, df_feather$BirdSex)
@@ -514,7 +526,7 @@ Simply said, there is no reason to assume that the pathogen community richness o
 
 ### Test Statistic
 
--   Decide on the level of significance (e.g., α = 0.05).
+-   Decide on the level of significance (e.g., alpha = 0.05).
 
 ### P-value
 
@@ -1279,7 +1291,7 @@ Upon visual inspection of the MDS, microbial community composition appears to be
 
 -   Apply nonmetric multidimensional scaling (NMDS) to the dissimilarities data in the **`ChickadeeDissimilarities.csv`** file. [Use R function **`metaMDS`** to perform the NMDS and use function **`ggplot`** to create a scatterplot that projects the data onto the first two NMDS axes. Then use the **`shape`** aesthetic to first mark the points by **`Habitat`** and then by **`Source`**.] Does the composition of the microbial communities appear to be related to **`Habitat`** or **`Source`**?
 
-```{r}
+```{r echo=FALSE}
 
 # Nonmetric Multidimensional Scaling (NMDS)
 

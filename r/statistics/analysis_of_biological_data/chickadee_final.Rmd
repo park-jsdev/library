@@ -1,0 +1,90 @@
+---
+title: "TRU4001_Final"
+author: "Junsoo Park"
+date: "2023-09-02"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+# Chickadee Pathogen Data Statistical Analysis
+
+## TRU 4001 - Biostatistics - Final Project
+
+## 1. Problem Definition
+
+### Problem Space
+
+Data from nest boxes at 47 mountain chickadee sites was collected to examine microbial community compositions associated with chickadees in urban, semi-urban, and rural environments. DNA sequencing was used to determine the relative abundance of different microbial taxa present in swabs from either chickadee nests or feathers in nest boxes in these three habitat types. Nest boxes were set up to encourage nesting in the sample sites. For the feather data, physical characteristics of the birds were recorded. The data was also used to determine two different measures of microbial species richness (alpha diversity) at each site.
+
+Make sure all the information needed to answer each question is provided (e.g., for questions that ask you to do a test, state the hypotheses you're testing, the test statistic and p-value obtained from R, the decision based on a significance level of 5%, and the conclusion in the context of the question).
+
+-   Summarize the data in **`ChickadeeData.csv`** numerically.
+
+-   Summarize the data in **`ChickadeeData.csv`** graphically.
+
+-   Use a two-sample *t*-test to determine whether the mean abundance of bacteria identified as genus *Escherichia/Shigella* differs significantly between nests and feathers. [Consider transforming variable **`EscShi`** and use R function **`t.test`**. Be careful when applying the natural logarithm transformation to data containing zeros since ln(0) is undefined. The usual way around this is to calculate ln(y+1) instead of ln(y).]
+
+-   Use a Mann-Whitney U-test (Wilcoxon rank sum test) to determine whether the population distribution of the abundance of bacteria identified as genus *Escherichia/Shigella* differs significantly between nests and feathers. [Use R function **`wilcox.test`**.]
+
+-   Use a two-sample *t*-test to determine whether the mean abundance of bacteria identified as genus *Enterococcus* differs significantly between nests and feathers. [Consider transforming variable **`Entero`** and use R function **`t.test`**.]
+
+-   Use a Mann-Whitney U-test (Wilcoxon rank sum test) to determine whether the population distribution of the abundance of bacteria identified as genus *Enterococcus* differs significantly between nests and feathers. [Use R function **`wilcox.test`**.]
+
+-   Use analysis of variance to determine whether mean pathogen richness is related to habitat. [Use R functions **`lm`** and **`anova`**.]
+
+-   Use a Kruskal-Wallis test to determine whether mean pathogen richness is related to habitat. [Use R function **`kruskal.test`**.]
+
+-   Use the Tukey-Kramer method to which habitats differ with respect to mean pathogen richness. [Use R functions **`emmeans`** and **`contrast`**.]
+
+-   Use contingency table analysis to determine whether community richness on feathers is independent of mountain chickadees sex? [Use R function **`filter`** in the **`dplyr`** package to subset the data frame to retain only feather swabs, then use R functions **`table`** and **`chisq.test`**.]
+
+-   Use simple linear regression to determine which of **`WingChord`**, **`BirdWeight`**, **`TailLen`**, or **`TarsusLen`** is most linearly associated with pathogen richness on feathers. [Use R functions **`lm`** and **`summary`**.]
+
+-   For the simple linear regression model selected in Question 11, investigate whether there are any outliers. An outlier in the context of linear regression is an observation with an extreme difference between the observed response value and the predicted response value from the model. Use the **`filter`** function to create a new data frame that excludes the most extreme outlier and refit the simple linear regression model. Report the results for the model fit to the data frame excluding the outlier and use this data frame to answer Questions 13-18.
+
+-   Find the best multiple linear regression model for predicting pathogen richness on feathers from two predictors out of **`WingChord`**, **`BirdWeight`**, **`TailLen`**, and **`TarsusLen`**. [Use R functions **`lm`** and **`summary`**.]
+
+-   Use a two-sample *t*-test to determine whether mean pathogen richness on feathers differs significantly between male and female birds. [Use R function **`t.test`**.]
+
+-   Starting from the simple linear regression model in Question 12, use analysis of covariance to investigate whether the linear association in the model differs for male and female birds. [Use R functions **`lm`** and **`summary`**.]
+
+-   Apply principal component analysis to the variables **`WingChord`**, **`BirdWeight`**, **`TailLen`**, and **`TarsusLen`**. [Use R functions **`scale`**, **`prcomp`**, and **`summary`**. Also, summarize the principal component loadings and use R function **`fviz_pca_ind`** with argument **`habillage`** to visualize the results and colour the observations by bird sex.]
+
+-   Fit a simple linear regression model with response variable **`PathRich`** and predictor variable equal to the first principal component from Question 16. Compare this model with the simple linear regression model in Question 12. [Use R functions **`lm`** and **`summary`**.]
+
+-   Fit a multiple linear regression model with response variable **`PathRich`** and predictor variables equal to the first two principal components from Question 16. Compare this model with the multiple linear regression model in Question 13. [Use R functions **`lm`** and **`summary`**.]
+
+-   Apply metric multidimensional scaling (MDS) to the dissimilarities data in the **`ChickadeeDissimilarities.csv`** file. [Use R function **`cmdscale`** to perform the metric MDS and use function **`ggplot`** to create a scatterplot that projects the data onto the first two principal coordinates. Then use the **`shape`** aesthetic to first mark the points by **`Habitat`** and then by **`Source`**.] Does the composition of the microbial communities appear to be related to **`Habitat`** or **`Source`**?
+
+-   Apply nonmetric multidimensional scaling (NMDS) to the dissimilarities data in the **`ChickadeeDissimilarities.csv`** file. [Use R function **`metaMDS`** to perform the NMDS and use function **`ggplot`** to create a scatterplot that projects the data onto the first two NMDS axes. Then use the **`shape`** aesthetic to first mark the points by **`Habitat`** and then by **`Source`**.] Does the composition of the microbial communities appear to be related to **`Habitat`** or **`Source`**?
+
+## References
+
+1.  www.tru.ca, Thompson Rivers University. "BIOL 4001: Biostatistics." *Thompson Rivers University*, <http://www.tru.ca/distance/courses/biol4001.html.> Accessed 20 Aug. 2023.
+
+2.  *Introduction to R*. <https://www.zoology.ubc.ca/~bio501/R/workshops/workshops-intro.html.> Accessed 20 Aug. 2023.
+
+3.  *Resources for The Analysis of Biological Data*. <https://whitlockschluter3e.zoology.ubc.ca/index.html.> Accessed 20 Aug. 2023.
