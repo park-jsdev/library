@@ -1,6 +1,6 @@
 ---
 title: "Chickadee Pathogen Data Statistical Analysis"
-author: "Junsoo Park"
+author: "Junsoo Park, T00625144"
 date: "2023-09-02"
 output:
   pdf_document: default
@@ -17,9 +17,7 @@ knitr::opts_chunk$set(warning=FALSE, echo=FALSE, message=FALSE, results=FALSE)
 
 Data from nest boxes at 47 mountain chickadee sites was collected to examine microbial community compositions associated with chickadees in urban, semi-urban, and rural environments. DNA sequencing was used to determine the relative abundance of different microbial taxa present in swabs from either chickadee nests or feathers in nest boxes in these three habitat types. Nest boxes were set up to encourage nesting in the sample sites. For the feather data, physical characteristics of the birds were recorded. The data was also used to determine two different measures of microbial species richness (alpha diversity) at each site.
 
-### 1. Numerical Summary
-
-```{r}
+```{r, echo=FALSE}
 
 # Load necessary libraries
 library(ggplot2)
@@ -41,65 +39,12 @@ library(visdat)
 library(gridExtra)
 theme_set(theme_classic())
 
-
 # Read the data
 chickadeeData <- read.csv("ChickadeeData.csv")
 dissimilaritiesData <- read.csv("ChickadeeDissimilarities.csv")
-
-# Check for Missing Data in the Entire Dataset
-sum(is.na(chickadeeData))
-
-# Check for Missing Data Column-wise
-colSums(is.na(chickadeeData))
-
-# Check for Missing Data Row-wise
-rowSums(is.na(chickadeeData))
-
-# Visualizing Missing Data
-vis_miss(chickadeeData)
-
-
-# dissimilarities data
-
-# Check for Missing Data in the Entire Dataset
-sum(is.na(dissimilaritiesData))
-
-# Check for Missing Data Column-wise
-colSums(is.na(dissimilaritiesData))
-
-# Check for Missing Data Row-wise
-rowSums(is.na(dissimilaritiesData))
-
-# Visualizing Missing Data
-vis_miss(dissimilaritiesData)
-
 ```
 
-```{r}
-
-# Summarize data
-summary(chickadeeData)
-head(chickadeeData)
-
-# See column names
-names(chickadeeData)
-
-# Check unique values of a specific column
-unique(chickadeeData$Source)
-
-# Detailed summary of dataframe
-str(chickadeeData)
-
-# Summarize each variable using Hmisc
-describe(chickadeeData)
-
-# Use a table to display example categorical variable
-chickadeeTableEscShi <- table(chickadeeData$EscShi)
-chickadeeTableEscShi
-
-chickadeeTableEntero <- table(chickadeeData$Entero)
-chickadeeTableEntero
-```
+### 1. Numerical Summary
 
 The data consists of 47 observations with 12 variables: Site, Habitat, Source, EscShi, Entero, CommRich, PathRich, WingChord, BirdWeight, TailLen, TarsusLen, and BirdSex. Below are the summary statistics for key variables:
 
@@ -133,7 +78,7 @@ TarsusLen: 30 non-missing (Min: 16.8, Median: 18.25, Max: 19.5) [missing: 17]
 
 We find that 15.1% of the chickadee dataset is missing, while none of the dissimilarities dataset is.
 
-The data shows a variety of bird habitats and sources, with most coming from feathers. The data also suggests wide variations in the numerical variables, like EscShi and Entero. There are also quite a few missing values for variables related to bird physical features, which should be taken into account in any subsequent analysis.
+The data shows a variety of bird habitats and sources, with most coming from feathers. The data also suggests wide variations in the numerical variables, like EscShi and Entero. There are also missing values for variables related to bird physical features.
 
 ### 2. Graphical Summary
 
@@ -142,37 +87,31 @@ The data shows a variety of bird habitats and sources, with most coming from fea
 # Visualize frequency distributions of single variables
 
 # Bar charts for categorical variables
-
-# Visualize frequency distributions of single variables
-
-# Bar charts for categorical variables
+theme_params <- theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 6))
 
 # Habitat
 p1 <- ggplot(data = chickadeeData, aes(x = Habitat)) +
 geom_bar(stat = "count") +
 labs(x = "Habitat", y = "Frequency") +
-theme(axis.text.x = element_text(angle = 90, hjust = 1))
+theme_params
 
 # Source
 p2 <- ggplot(data = chickadeeData, aes(x = Source)) +
 geom_bar(stat = "count") +
 labs(x = "Source", y = "Frequency") +
-theme(axis.text.x = element_text(angle = 90, hjust = 1))
+theme_params
 
 # CommRich
 p3 <- ggplot(data = chickadeeData, aes(x = CommRich)) +
 geom_bar(stat = "count") +
 labs(x = "Community Richness", y = "Frequency") +
-theme(axis.text.x = element_text(angle = 90, hjust = 1))
+theme_params
 
 # BirdSex
 p4 <- ggplot(data = chickadeeData, aes(x = BirdSex)) +
 geom_bar(stat = "count") +
 labs(x = "Sex", y = "Frequency") +
-theme(axis.text.x = element_text(angle = 90, hjust = 1))
-
-# Arrange the plots on one or more pages
-grid.arrange(p1, p2, p3, p4, ncol = 2) 
+theme_params
 
 # Histograms for numerical variables
 
@@ -193,8 +132,6 @@ p7 <- ggplot(data = chickadeeData, aes(x = PathRich)) +
 geom_histogram(col = "black", binwidth = 4,
 boundary = 0, closed = "left") +
 labs(x = "Pathogen Richness", y = "Frequency")
-
-grid.arrange(p5, p6, p7, ncol = 2) 
 
 # WingChord
 p8 <- ggplot(data = chickadeeData, aes(x = WingChord)) +
@@ -220,34 +157,8 @@ geom_histogram(col = "black", binwidth = 0.2,
 boundary = 0, closed = "left") +
 labs(x = "Tarsus Length", y = "Frequency")
 
-grid.arrange(p8, p9, p10, p11, ncol = 2) 
-
-# Relationship between 2 variables
-
-# Box Plot for numerical variable vs categorical variable
-ggplot(chickadeeData, aes(x=BirdSex, y=TarsusLen)) + geom_boxplot()
-
-# Scatter Plots
-ggplot(chickadeeData,   
-  aes(x = BirdWeight, 
-  y = EscShi)) +
-  geom_point()
-
-ggplot(chickadeeData,   
-  aes(x = TarsusLen, 
-  y = PathRich)) +
-  geom_point()
-
-# Strip Chart
-ggplot (data = chickadeeData, aes(x = WingChord, y = Entero)) +
-geom_jitter(shape = 1, size = 2, width = 0.15) +
-labs(x = "Wing Size", y = "Entero")
-
-# Violin Plot
-ggplot(data = chickadeeData, aes(y = BirdWeight, x = TailLen)) +
-geom_violin() +
-labs(x = "Tail Length", y = "BirdWeight") +
-stat_summary(fun = mean, geom = "point")
+# Arrange the plots on one or more pages
+grid.arrange(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, ncol = 4) 
 
 ```
 
@@ -255,28 +166,13 @@ Upon visual inspection, we find that *Escherichia/Shigella* and *Enterococcus* d
 
 ### 3. Two-Sample *t*-Test For *Escherichia/Shigella* **Between Nest and Feathers**
 
-```{r}
-
-# Natural Log transformation + 1 (to handle zeroes)
-EscShi_transformed <- log(chickadeeData$EscShi + 1)
-
-# Two sample t-test of transformed data, assuming equal group variance
-t.test(EscShi_transformed ~ Source, data = chickadeeData, var.equal = TRUE)
-```
-
-In the two-sample t-test conducted to determine whether the mean abundance of bacteria identified as genus *Escherichia/Shigella* differs significantly between nests and feathers, our null hypothesis is that the true difference in means between the feather group and the nest group is equal to 0. The alternative hypothesis is that this difference is not equal to 0.
+In the two-sample *t*-test conducted to determine whether the mean abundance of bacteria identified as genus *Escherichia/Shigella* differs significantly between nests and feathers, our null hypothesis is that the true difference in means between the feather group and the nest group is equal to 0. The alternative hypothesis is that this difference is not equal to 0.
 
 Based on the test results for the natural logarithm-transformed variable, the test statistic *t* is 4.0756, and the p-value is 0.0001842. Given that the p-value is less than the alpha level of 0.05, we reject the null hypothesis.
 
 We conclude that there is a statistically significant difference in the mean abundance of bacteria identified as genus *Escherichia/Shigella* between nests and feathers, based on this data.
 
 ### 4. Mann-Whitney U-Test For *Escherichia/Shigella* Between Nest and Feathers
-
-```{r}
-
-# Mann-Whitney U-Test
-wilcox.test(EscShi ~ Source, data = chickadeeData)
-```
 
 In the Mann-Whitney U-test conducted to determine whether the population distribution of the abundance of bacteria identified as genus *Escherichia/Shigella* differs significantly between nests and feathers, our null hypothesis is that the true location shift between the feather group and the nest group is equal to 0. The alternative hypothesis is that this location shift is not equal to 0.
 
@@ -288,15 +184,6 @@ The Mann-Whitney U-test is useful in this context as it does not require the nor
 
 ### 5. Two-Sample *t*-Test For *Enterococcus* **Between Nest and Feathers**
 
-```{r}
-
-# Natural Log transformation + 1 (to handle zeroes)
-Entero_transformed <- log(chickadeeData$Entero + 1)
-
-# Two sample t-test of transformed data, assuming equal group variance
-t.test(Entero_transformed ~ Source, data = chickadeeData, var.equal = TRUE)
-```
-
 In the two-sample t-test conducted to assess whether the mean abundance of bacteria identified as genus *Enterococcus* differs significantly between nests and feathers, our null hypothesis is that the true difference in means between the feather group and the nest group is equal to 0. The alternative hypothesis is that this difference is not equal to 0.
 
 Based on the results of the test on the natural logarithm transformed data, the test statistic *t* is -2.6195, and the p-value is 0.01196. Since the p-value is less than the alpha level of 0.05, we reject the null hypothesis.
@@ -305,13 +192,7 @@ We conclude that there is statistically significant evidence to suggest that the
 
 ### 6. Mann-Whitney U-Test For *Enterococcus* Between Nest and Feathers
 
-```{r}
-
-# Mann-Whitney U-Test
-wilcox.test(Entero ~ Source, data = chickadeeData)
-```
-
-In the Mann-Whitney U-test to examine whether the population distribution of the abundance of bacteria identified as genus *Enterococcus* varies significantly between nests and feathers, our null hypothesis is that the true location shift between the feather and nest groups is equal to 0. The alternative hypothesis is that this location shift is not equal to 0.
+In the Mann-Whitney U-test to assess whether the population distribution of the abundance of bacteria identified as genus *Enterococcus* varies significantly between nests and feathers, our null hypothesis is that the true location shift between the feather and nest groups is equal to 0. The alternative hypothesis is that this location shift is not equal to 0.
 
 From the test results, the test statistic *W* is 148, and the p-value is 0.01826. Given that the p-value is less than the alpha level of 0.05, we reject the null hypothesis.
 
@@ -319,26 +200,7 @@ We conclude that there is statistically significant evidence to suggest that the
 
 ### 7. Analysis of Variance for Pathogen Richness and Habitat
 
-```{r}
-
-# Scatter Plot with linear model
-ggplot(chickadeeData, aes(x=Habitat, y=PathRich)) +
-  geom_point(aes(color=Habitat), size=3) +            # Scatter plot
-  geom_smooth(method='lm', aes(group=1, color=Habitat)) + # Add a linear fit, colored by Habitat
-  labs(title="Relationship between Pathogen Richness and Habitat",
-       x="Habitat",
-       y="Pathogen Richness") +
-  theme_minimal()
-
-# Simple Linear Regression
-PathRich_Habitat_Regression <- lm(PathRich ~ Habitat, data = chickadeeData)
-summary(PathRich_Habitat_Regression)
-
-# ANOVA
-anova(PathRich_Habitat_Regression)
-```
-
-In the analysis of variance (ANOVA), we assess whether the mean pathogen richness is significantly related to habitat. The null hypothesis is that there is no relationship between habitat and pathogen richness, while the alternative hypothesis is that such a relationship does exist.
+In the analysis of variance (ANOVA), we assessed whether the mean pathogen richness is significantly related to habitat. The null hypothesis is that there is no relationship between habitat and pathogen richness, while the alternative hypothesis is that such a relationship does exist.
 
 According to the linear model results, the F-statistic is 5.275 with a corresponding p-value of 0.008844. Given that this p-value is below the alpha level of 0.05, we reject the null hypothesis.
 
@@ -350,13 +212,7 @@ We conclude that habitat is a statistically significant predictor of pathogen ri
 
 ### 8. Kruskal-Wallis Test for Pathogen Richness and Habitat
 
-```{r}
-
-# Kruskal-Wallis Test
-kruskal.test(PathRich ~ Habitat, data = chickadeeData)
-```
-
-In the Kruskal-Wallis test, we assess whether mean pathogen richness varies significantly across different habitats. The null hypothesis is that there are no differences in mean pathogen richness across habitats, while the alternative hypothesis is that at least one habitat exhibits a difference in mean pathogen richness.
+In the Kruskal-Wallis test, we assessed whether mean pathogen richness varies significantly across different habitats. The null hypothesis is that there are no differences in mean pathogen richness across habitats, while the alternative hypothesis is that at least one habitat exhibits a difference in mean pathogen richness.
 
 The Kruskal-Wallis $X^2$ test statistic is 13.587, with 2 degrees of freedom, and a p-value of 0.001121. Given that the p-value is well below the alpha level of 0.05, we reject the null hypothesis.
 
@@ -364,17 +220,7 @@ We conclude that there is a statistically significant difference in mean pathoge
 
 ### 9. Tukey-Kramer Test for Pathogen Richness and Specfic Habitat
 
-```{r}
-
-# Tukey-Kramer test
-pathogenPairs <- emmeans(PathRich_Habitat_Regression, specs = "Habitat")
-pathogenUnplanned <- contrast(pathogenPairs, method = "pairwise",
-adjust = "tukey")
-
-pathogenUnplanned
-```
-
-In the Tukey-Kramer post-hoc test, we assess which specific habitats differ significantly in terms of mean pathogen richness. The test provides pairwise comparisons between the three habitat types: rural, semi-urban, and urban.
+In the Tukey-Kramer post-hoc test, we assessed which specific habitats differ significantly in terms of mean pathogen richness. The test provides pairwise comparisons between the three habitat types: rural, semi-urban, and urban.
 
 Rural vs. Semi-Urban: The estimated mean difference is -9.06, with a p-value of 0.1155. Since this p-value exceeds the alpha level of 0.05, the difference in pathogen richness between rural and semi-urban habitats is not statistically significant.
 
@@ -386,55 +232,13 @@ Based on the Tukey-Kramer test, we can conclude that pathogen richness is signif
 
 ### 10. Contingency Table Analysis and Chi-Squared Test for Community Richness and Sex
 
-```{r}
-
-# Filter df for Source = feather
-df_feather <- filter(chickadeeData, Source == 'feather')
-#df_feather
-
-# Create 2x2 Contingency Table for community richness and sex
-CommRich_BirdSex_table <- table(df_feather$CommRich, df_feather$BirdSex)
-#CommRich_BirdSex_table
-#str(CommRich_BirdSex_table)
-
-# Create a mosaic plot to visualize the data
-par(pty = "s") # makes a square plot
-mosaicplot(t(CommRich_BirdSex_table), col = c("firebrick", "goldenrod1"),
-cex.axis = 1, main = "",
-sub = "Infection status", ylab = "Relative frequency")
-
-# Conduct a Chi-squared Test of Independence of Two Categorical Variables
-Xsq <- chisq.test(CommRich_BirdSex_table, correct = FALSE)
-Xsq
-```
-
-In this contingency table analysis using Pearson's Chi-squared test, we assess whether community richness on feathers is independent of the sex of mountain chickadees. The null hypothesis is that community richness and the sex of the bird are independent variables, while the alternative hypothesis is that they are not independent.
+In this contingency table analysis using Pearson's Chi-squared test, we assessed whether community richness on feathers is independent of the sex of mountain chickadees. The null hypothesis is that community richness and the sex of the bird are independent variables, while the alternative hypothesis is that they are not independent.
 
 According to the test results, the Chi-squared statistic $X^2$ is 1.0325 with 1 degree of freedom, and the p-value is 0.3096. Given that the p-value exceeds the alpha level of 0.05, we fail to reject the null hypothesis.
 
 We conclude that there is insufficient evidence to suggest that community richness on feathers is dependent on the sex of mountain chickadees, based on this data.
 
 ### 11. Linear Regression of Morphological Features and Pathogen Richness
-
-```{r}
-
-# Fit a linear model to each relationship
-fit_WingChord <- lm(df_feather$PathRich ~ df_feather$WingChord)
-fit_BirdWeight <- lm(df_feather$PathRich ~ df_feather$BirdWeight)
-fit_TailLen <- lm(df_feather$PathRich ~ df_feather$TailLen)
-fit_TarsusLen <- lm(df_feather$PathRich ~ df_feather$TarsusLen)
-
-# Summarize the fits
-summary(fit_WingChord)
-summary(fit_BirdWeight)
-summary(fit_TailLen)
-summary(fit_TarsusLen)
-
-# Alternatively, fit a multiple linear regression model
-fit_all <- lm(PathRich ~ WingChord + BirdWeight + TailLen + TarsusLen, data = df_feather)
-summary(fit_all)
-
-```
 
 In this analysis, simple linear regression was used to examine the linear relationship between four bird features (Wing Chord, Bird Weight, Tail Length, and Tarsus Length) and pathogen richness on feathers. Additionally, multiple linear regression was conducted to examine the combined effect of these predictors.
 
@@ -452,52 +256,6 @@ The multiple regression model yielded a p-value of 0.3015 and an $R^2$ of 0.1708
 
 ### 12. Linear Regression of Morphological Features and Pathogen Richness With Outliers Removed
 
-```{r}
-
-# Individually
-boxplot(df_feather$PathRich) # Outlier > 60
-boxplot(df_feather$WingChord)
-boxplot(df_feather$BirdWeight) # Outliers > 13
-boxplot(df_feather$TailLen)
-boxplot(df_feather$TarsusLen)
-
-# Filter outliers
-df_feather <- filter(df_feather, PathRich < 66) # Outlier > 60
-df_feather <- filter(df_feather, BirdWeight < 14) # Outlier > 13
-
-# Check if filters were successful
-boxplot(df_feather$PathRich) # Outlier > 60
-boxplot(df_feather$BirdWeight) # Outliers > 13
-
-# Check Relationships for more potential outliers
-plot(PathRich ~ WingChord, data = df_feather)
-plot(PathRich ~ BirdWeight, data = df_feather)
-plot(PathRich ~ TailLen, data = df_feather)
-plot(PathRich ~ TarsusLen, data = df_feather)
-
-# BirdWeight only has 1 value at 13, treat it as an outlier
-df_feather <- filter(df_feather, BirdWeight < 12.5)
-plot(PathRich ~ BirdWeight, data = df_feather)
-
-# After removing the outliers, fit the linear model again
-
-# Fit a linear model to each relationship
-fit_WingChord <- lm(df_feather$PathRich ~ df_feather$WingChord)
-fit_BirdWeight <- lm(df_feather$PathRich ~ df_feather$BirdWeight)
-fit_TailLen <- lm(df_feather$PathRich ~ df_feather$TailLen)
-fit_TarsusLen <- lm(df_feather$PathRich ~ df_feather$TarsusLen)
-
-# Summarize the fits
-summary(fit_WingChord)
-summary(fit_BirdWeight)
-summary(fit_TailLen)
-summary(fit_TarsusLen)
-
-# Alternatively, fit a multiple linear regression model
-fit_all <- lm(PathRich ~ WingChord + BirdWeight + TailLen + TarsusLen, data = df_feather)
-summary(fit_all)
-```
-
 After identifying and removing the most extreme outliers from our dataset, we refit our simple linear regression models and found that two predictor variables remained statistically significant.
 
 Wing Chord: The model estimates a coefficient of 2.2607 for Wing Chord, with a p-value of 0.0301, which is significant at the 0.05 level. The Multiple $R^2$ value for this model is 0.2141.
@@ -509,33 +267,6 @@ When we used all four predictors in a multiple linear regression model, the over
 Therefore, after excluding the most extreme outliers, we reject the null hypothesis that the predictors have no effect on the response variable for both the individual and multiple regression models. We conclude that there exists at least one predictor that has a statistically significant effect on the response variable.
 
 ### 13. Multiple Linear Regression of Morphological Features and Pathogen Richness to Find Best Two Predictors
-
-```{r}
-
-# WingChord + BirdWeight
-fit_WingChord_BirdWeight <- lm(PathRich ~ WingChord + BirdWeight, data = df_feather)
-summary(fit_WingChord_BirdWeight)
-
-# WingChord + TailLen
-fit_WingChord_TailLen <- lm(PathRich ~ WingChord + TailLen, data = df_feather)
-summary(fit_WingChord_TailLen)
-
-# WingChord + TarsusLen
-fit_WingChord_TarsusLen <- lm(PathRich ~ WingChord + TarsusLen, data = df_feather)
-summary(fit_WingChord_TarsusLen)
-
-# BirdWeight + TailLen
-fit_BirdWeight_TailLen <- lm(PathRich ~ BirdWeight + TailLen, data = df_feather)
-summary(fit_BirdWeight_TailLen)
-
-# BirdWeight + TarsusLen
-fit_BirdWeight_TarsusLen <- lm(PathRich ~ BirdWeight + TarsusLen, data = df_feather)
-summary(fit_BirdWeight_TarsusLen)
-
-# TailLen + TarsusLen
-fit_TailLen_TarsusLen <- lm(PathRich ~ TailLen + TarsusLen, data = df_feather)
-summary(fit_TailLen_TarsusLen)
-```
 
 To identify the best multiple linear regression model for predicting pathogen richness on feathers from two predictors among Wing Chord, Bird Weight, Tail Length, and Tarsus Length, we evaluated several models based on their p-values, Multiple $R^2$, Adjusted $R^2$, and Residual Standard Error (RSE).
 
@@ -577,100 +308,9 @@ This finding is consistent with our single linear regression analysis, which als
 
 ### 14. Two-Sample *t*-Test for Pathogen Richness on Feathers between Sexes
 
-```{r}
-
-# t-test assuming equal variance
-t.test(PathRich ~ BirdSex, data = df_feather, var.equal = TRUE)
-```
-
 In this study, we assessed whether there is a significant difference in the mean pathogen richness on feathers between male and female birds. To do so, we used a two-sample *t*-test. The null hypothesis is that there is no significant difference between the means, while the alternative hypothesis asserts otherwise. Our analysis yielded the *t*-value of -1.5165 with 20 degrees of freedom, and a p-value of 0.1451. We find that the p-value exceeds the alpha level of 0.05. Thus, there is insufficient evidence to reject the null hypothesis. We conclude that there is no statistically significant difference in the mean pathogen richness on feathers between male and female birds based on this data.
 
 ### 15. Analysis of Covariance on Linear Models between Sexes
-
-```{r}
-
-# ANCOVA
-
-# Wing Chord
-
-# Scatterplot by Sex
-ggplot(df_feather, aes(WingChord, PathRich, shape = BirdSex)) +
-geom_point(size = 2) +
-scale_shape_manual(values = c(16, 1)) +
-labs(x = "Wing Chord", y = "Pathogen Richness")
-
-# Fit the main effects model (with no interaction term)
-featherNoInteractModel <- lm(PathRich ~ WingChord + BirdSex,
-data = df_feather)
-df_feather$fit0 <- predict(featherNoInteractModel)
-ggplot(df_feather, aes(WingChord, PathRich, colour = BirdSex,
-shape = BirdSex, linetype=BirdSex)) +
-geom_line(aes(y = fit0), size = 1, color = "black") +
-geom_point(size = 2) +
-scale_colour_manual(values = c("black", "black")) +
-scale_shape_manual(values = c(16, 1)) +
-labs(x = "Wing Chord", y = "Pathogen Richness")
-
-summary(featherNoInteractModel)
-
-# Fit the interaction model
-featherInteractModel <- lm(PathRich ~ WingChord * BirdSex,
-data = df_feather)
-ggplot(df_feather, aes(WingChord, PathRich, colour = BirdSex,
-shape = BirdSex, linetype=BirdSex)) +
-geom_smooth(method = "lm", size = 1, se = FALSE, col = "black") +
-geom_point(size = 2) +
-scale_colour_manual(values = c("black", "black")) +
-scale_shape_manual(values = c(16, 1)) +
-labs(x = "Wing Chord", y = "Pathogen Richness")
-
-summary(featherInteractModel)
-
-# ANOVA table
-anova(featherNoInteractModel, featherInteractModel)
-# No significant difference
-
-# Tail Length
-# Scatterplot by Sex
-ggplot(df_feather, aes(TailLen, PathRich, shape = BirdSex)) +
-geom_point(size = 2) +
-scale_shape_manual(values = c(16, 1)) +
-labs(x = "Tail Length", y = "Pathogen Richness")
-
-# Fit the main effects model (with no interaction term)
-featherNoInteractModel <- lm(PathRich ~ TailLen + BirdSex,
-data = df_feather)
-df_feather$fit0 <- predict(featherNoInteractModel)
-ggplot(df_feather, aes(TailLen, PathRich, colour = BirdSex,
-shape = BirdSex, linetype=BirdSex)) +
-geom_line(aes(y = fit0), size = 1, color = "black") +
-geom_point(size = 2) +
-scale_colour_manual(values = c("black", "black")) +
-scale_shape_manual(values = c(16, 1)) +
-labs(x = "Tail Length", y = "Pathogen Richness")
-
-summary(featherNoInteractModel)
-
-# Fit the interaction model
-featherInteractModel <- lm(PathRich ~ TailLen * BirdSex,
-data = df_feather)
-ggplot(df_feather, aes(TailLen, PathRich, colour = BirdSex,
-shape = BirdSex, linetype=BirdSex)) +
-geom_smooth(method = "lm", size = 1, se = FALSE, col = "black") +
-geom_point(size = 2) +
-scale_colour_manual(values = c("black", "black")) +
-scale_shape_manual(values = c(16, 1)) +
-labs(x = "Tail Length", y = "Pathogen Richness")
-
-summary(featherInteractModel)
-
-# ANOVA table
-anova(featherNoInteractModel, featherInteractModel)
-# No significant difference
-
-
-
-```
 
 In this study, we used analysis of covariance to investigate whether the linear association in the model differs for male and female birds.
 
@@ -682,64 +322,18 @@ Given these findings, there is insufficient evidence to reject the null hypothes
 
 ```{r}
 
-# Quick PCA
-
 # Gather the numeric variables
+df_feather <- filter(chickadeeData, Source == 'feather')
 numeric_variables <- df_feather[, c("WingChord", "BirdWeight", "TailLen", "TarsusLen")]
-
 scaledBirds <- data.frame(scale(numeric_variables))
-
-ggplot(scaledBirds, aes(x = WingChord, y = BirdWeight)) +
-geom_point(size = 2, shape = 21) +
-geom_point(aes(y = 0), colour = "red") +
-geom_segment(aes(xend = WingChord, yend = 0),
-colour = "red",
-arrow = arrow(length = unit(0.15, "cm")))
-
 scaledBirds_clean_rows <- na.omit(scaledBirds)
-# clustered heatmap of correlations
-pheatmap(cor(scaledBirds_clean_rows), treeheight_row = 0.2)
 
 # Perform PCA
 pca_result <- prcomp(scaledBirds_clean_rows, center = TRUE, scale. = TRUE) 
 # center and scale. are usually TRUE for standardized data, but since the data is already scaled, they are not strictly necessary
 
-summary_pca <- summary(pca_result)
-print(summary_pca)
-
-# Explain the first 2 principal components (rotation matrix)
-pca_result$rotation[, 1:2]
-
-pca_result$sdev # standard deviations
-pca_result$sdev^2 # eigenvalues/variances
-pca_result$sdev^2 / sum(pca_result$sdev^2) # proportion of variance
-
-get_eig(pca_result) # eigenvalues/variances
-fviz_eig(pca_result, geom = "bar", bar_width = 0.4) +
-ggtitle("")
-
-# Scree Plot
-fviz_eig(pca_result, addlabels = TRUE)
-
-# Biplot of attributes
-fviz_pca_var(pca_result, col.var = "black")
-
-# Contribution of each variable
-fviz_cos2(pca_result, choice = "var", axes = 1:2)
-
-# Biplot combined with cos2
-fviz_pca_var(pca_result, col.var = "cos2",
-            gradient.cols = c("black", "orange", "green"),
-            repel = TRUE)
-
 # PCA Scatter Plot
 chickadee_clean_rows <- na.omit(df_feather) # we need to ensure the rows are equal from the dataset not used in the pca
-
-fviz_pca_ind(pca_result, habillage = chickadee_clean_rows$BirdSex,
-geom = "point") +
-ggtitle("") +
-ylim(c(-6.5,7.5)) +
-coord_fixed()
 
 # PCA BiPlot
 fviz_pca_biplot(pca_result, geom = "point",
@@ -759,47 +353,6 @@ In summary, the PCA indicates that Wing Chord, Bird Weight, and Tail Length are 
 
 ### 17. Simple Linear Regression Model for Pathogen Richness with the First Principal Component as a Predictor
 
-```{r}
-
-# Extract the principal component scores
-pc1_scores <- pca_result$x[, 1]
-pc2_scores <- pca_result$x[, 2]
-
-# Fit a linear model to each relationship
-fit_PC1 <- lm(chickadee_clean_rows$PathRich ~ pc1_scores)
-
-# Make predictions using the linear model
-chickadee_clean_rows$pc1_predicted <- predict(fit_PC1, newdata = chickadee_clean_rows)
-
-# Scatterplot by Sex
-ggplot(chickadee_clean_rows, aes(x = pc1_scores, y = PathRich)) +
-  geom_point(aes(shape = BirdSex, color = BirdSex), size = 2) + 
-  scale_shape_manual(values = c(16, 1)) +
-  geom_line(aes(y = pc1_predicted), size = 1, color = "black") + 
-  labs(x = "Dimension 1", y = "Pathogen Richness") +
-  scale_colour_manual(values = c("red", "blue"))
-
-
-# Make predictions using the previous simple linear model
-fit_WingChord_cleaned <- lm(chickadee_clean_rows$PathRich ~ chickadee_clean_rows$WingChord)
-chickadee_clean_rows$predicted_WingChord <- predict(fit_WingChord_cleaned, newdata = chickadee_clean_rows)
-
-# Scatterplot by Sex with both models (along Dimension 1)
-ggplot(chickadee_clean_rows, aes(x = pc1_scores, y = PathRich)) +
-  geom_point(aes(shape = BirdSex, color = BirdSex), size = 2) + 
-  scale_shape_manual(values = c(16, 1)) +
-  geom_line(aes(y = pc1_predicted), size = 1, color = "black") + 
-    geom_line(aes(x = pc1_scores, y = predicted_WingChord), size = 1, color = "orange", linetype = "dashed") +
-  labs(x = "Dimension 1", y = "Pathogen Richness") +
-  scale_colour_manual(values = c("red", "blue"))
-
-# Summarize the fits
-summary(fit_PC1)
-summary(fit_WingChord_cleaned)
-summary(fit_WingChord)
-
-```
-
 In this study, we fit a a simple linear regression model with Pathogen Richness as a response variable and predictor variable equal to the first principal component, and compared it to the simple linear regression model with Wing Chord as a predictor.
 
 In the first model, where Pathogen Richness is predicted by PC1, the coefficient for PC1 is 2.099, with a standard error of 1.499, resulting in a t-value of 1.40 and a p-value of 0.177. This indicates that, at the 5% significance level, PC1 is not a significant predictor of Pathogen Richness, as the p-value is greater than 0.05. The model explains only 8.92% of the variance in Pathogen Richness ($R^2$ = 0.08924), which is not a large amount, and the F-statistic of 1.96 with a p-value of 0.1769 further confirms that the model is not a good fit.
@@ -809,20 +362,6 @@ In the second and third models, where Pathogen Richness is predicted by Wing Cho
 In conclusion, Wing Chord is a significant predictor of Pathogen Richness, whereas the first principal component (PC1) is not. However, both models explain a relatively small amount of variance in Pathogen Richness, indicating that other factors not included in these models are likely important in predicting pathogen richness.
 
 ### 18. Multiple Linear Regression Model for Pathogen Richness with the First Two Principal Components as Predictors
-
-```{r}
-
-# Extract the principal component scores
-pc1_scores <- pca_result$x[, 1]
-pc2_scores <- pca_result$x[, 2]
-
-# Fit a linear model to each relationship for principal components
-fit_all_PC <- lm(chickadee_clean_rows$PathRich ~ pc1_scores + pc2_scores)
-
-# Compare summaries
-summary(fit_all_PC)
-summary(fit_all)
-```
 
 In this study, we fit a multiple linear regression model with Pathogen Richness as a response variable and predictor variables equal to the first two principal components, and compared the model with the multiple linear regression model with the morphological features as predictor variables.
 
@@ -834,18 +373,9 @@ Both models are statistically significant, but the model with the original varia
 
 In summary, using the first two principal components provides a lower dimensional, but nearly equally effective way of explaining variance in Pathogen Richness compared to using the original four variables. However, then the model with the original variables provides detail of biological features.
 
-### 18.2. Simple Linear Regression Model for Pathogen Richness with the Second Principal Component as a Predictor
-
 As the first principal component was not found to be statistically significant in prediction with linear regression, let us test the second principal component:
 
-```{r}
-
-# Fit a linear model to each relationship for principal components
-fit_PC2 <- lm(chickadee_clean_rows$PathRich ~ pc2_scores)
-
-# Compare summaries
-summary(fit_PC2)
-```
+### 18.2. Simple Linear Regression Model for Pathogen Richness with the Second Principal Component as a Predictor
 
 The F-statistic is 14.6 with a p-value of 0.00107, below the alpha level of 0.05. We reject the null hypothesis and conclude from this data that this model is statistically significant in explaining the variance in the response variable, pathogen richness. The predictor variable, the second principal component, has a t-value of 3.82, below the alpha level of 0.05. We conclude that the second principal component is statistically significant in predicting pathogen richness. The multiple R-squared value is 0.4219, and this suggests that approximately 42.19% of the variability in pathogen richness is explained by the second principal component.
 
@@ -857,91 +387,42 @@ While the first principal component captured more of the variance in the predict
 
 # Microbial community composition data for 2607 taxa was also used to calculate Bray Curtis dissimilarities between the 47 sites
 distChickadee <- read.csv("ChickadeeDissimilarities.csv", row.names=1)
-distChickadee[1:6, 1:6]
-
-# clustered heatmap
-pheatmap(distChickadee[1:12, 1:12], cluster_rows = TRUE,
-treeheight_row = 0.0001, treeheight_col = 0.8,
-fontsize_col = 8, cellwidth = 13, cellheight = 13)
 
 # Classical (metric) multidimensional scaling (MDS), also known as principal coordinates analysis
 MDSChickadee <- cmdscale(distChickadee, eig = TRUE)
-
-# Create a plotbar function to plot the eigenvalues in a scree plot.
-plotbar <- function(res, m = 9) {
-ggplot(data.frame(list(eig = res$eig[seq_len(m)],
-k = seq(along = res$eig[seq_len(m)]))),
-aes(x = k, y = eig)) +
-scale_x_discrete("k", limits = factor(seq_len(m))) +
-theme_minimal() +
-geom_bar(stat="identity", width=0.5, color="orange",
-fill="pink")
-}
-
-plotbar(MDSChickadee, m = 5)
 
 # Project the cities onto the first two coordinates created from the distances.
 MDSChick <- data.frame(list(PCo1 = MDSChickadee$points[, 1],
 PCo2 = MDSChickadee$points[, 2],
 labs = rownames(MDSChickadee$points)))
 
-ggplot(MDSChick, aes(x = PCo1, y = PCo2, label = labs)) +
-geom_point(color = "red") +
-#xlim(-1950, 2000) +
-#ylim(-1150, 1200) +
-coord_fixed() +
-geom_text_repel(size = 4, max.overlaps = 100)
-
-#To re-orient the “map” so north is at the top and west is on the left, reverse the signs of the principal coordinates:
-ggplot(MDSChick, aes(x = -PCo1, y = -PCo2, label = labs)) +
-geom_point(color = "red") +
-coord_fixed() +
-geom_text_repel(size = 4, max.overlaps = 100)
-
 # Merge the datasets
 MDSChick_merged <- merge(MDSChick, chickadeeData, by.x = "labs", by.y = "Site")
-print(MDSChick_merged)
 
 # By Habitat
-ggplot(MDSChick_merged, aes(x = PCo1, y = PCo2)) +
+p1 <- ggplot(MDSChick_merged, aes(x = PCo1, y = PCo2)) +
   geom_point(aes(shape = Habitat)) +
-  coord_fixed() +
-  scale_shape_manual(values = c(16, 17, 18))
-
-# Zoom in
-ggplot(MDSChick_merged, aes(x = PCo1, y = PCo2)) +
-  geom_point(aes(shape = Habitat)) +
-  xlim(-0.25, 0.25) +
-  ylim(-0.25, 0.25) +
   coord_fixed() +
   scale_shape_manual(values = c(16, 17, 18))
 
 # By Source
-ggplot(MDSChick_merged, aes(x = PCo1, y = PCo2)) +
+p2 <- ggplot(MDSChick_merged, aes(x = PCo1, y = PCo2)) +
   geom_point(aes(shape = Source)) +
   coord_fixed() +
   scale_shape_manual(values = c(16, 17))
 
-# Zoom in
-ggplot(MDSChick_merged, aes(x = PCo1, y = PCo2)) +
-  geom_point(aes(shape = Source)) +
-  xlim(-0.25, 0.25) +
-  ylim(-0.25, 0.25) +
-  coord_fixed() +
-  scale_shape_manual(values = c(16, 17))
+# Arrange the plots on one or more pages
+grid.arrange(p1, p2, ncol = 2) 
+
 ```
 
 In this study, we applied metric multidimensional scaling (MDS) to the dissimilarities dataset to assess if the composition of the microbial communities appear to be related more to Habitat or Source. Upon visual inspection of the MDS, microbial community composition appears to be more closely associated with Source, as the different categories of Source are more closely clustered.
 
 ### 20. Nonmetric Multidimensional Scaling (NMDS) to Assess the Composition of Microbial Communities Relating to Habitat or Source
 
-```{r}
+```{r NMDS, echo=FALSE, results=FALSE, message=FALSE, warning=FALSE}
 
 # Nonmetric Multidimensional Scaling (NMDS)
-
-# Recall that NMDS is more robust as it does not use metric distances, but it is more computationally intensive
-
-# Create a function to conduct a nonmetric multidimensional scaling (NMDS) by running the metaMDS function (in the vegan package) multiple times for a range of possible values for k (the number of dimensions) and recording the stress values (a measure of goodness of fit; the lower the better):
 
 nmds.stress <- function(x, sim = 10, kmax = 4) {
 sapply(seq_len(kmax), function(k)
@@ -949,11 +430,6 @@ replicate(sim, metaMDS(x, k = k, autotransform = FALSE)$stress))
 }
 
 stress <- nmds.stress(distChickadee, sim = 10)
-
-# Look at boxplots of the results as a diagnostic plot to choose k:
-dfstr <- melt(stress, varnames = c("replicate","dimensions"))
-ggplot(dfstr, aes(y = value, x = dimensions, group = dimensions)) +
-geom_boxplot()
 
 # Compare the observed distances and their approximations using a Shepard plot for k = 2:
 nmdsk2 <- metaMDS(distChickadee, k = 2, autotransform = FALSE)
@@ -971,15 +447,19 @@ Site = rownames(distChickadee)
 merged_df <- merge(dfnmdsk2, chickadeeData, by = "Site")
 
 # Plotting by Habitat
-ggplot(merged_df, aes(x = NmMDS1, y = NmMDS2)) +
-  geom_point(aes(colour = Habitat), size = 4) +
-  geom_text_repel(aes(label = Site), size = 3, max.overlaps = 100)
+p1 <- ggplot(merged_df, aes(x = NmMDS1, y = NmMDS2)) +
+  geom_point(aes(shape = Habitat)) +
+  coord_fixed() +
+  scale_shape_manual(values = c(16, 17, 18))
 
 # Plotting by Source
-ggplot(merged_df, aes(x = NmMDS1, y = NmMDS2)) +
-  geom_point(aes(colour = Source), size = 4) +
-  geom_text_repel(aes(label = Site), size = 3, max.overlaps = 100)
+p2 <- ggplot(merged_df, aes(x = NmMDS1, y = NmMDS2)) +
+  geom_point(aes(shape = Source)) +
+  coord_fixed() +
+  scale_shape_manual(values = c(16, 17))
 
+# Arrange the plots on one or more pages
+grid.arrange(p1, p2, ncol = 2) 
 ```
 
 In this study, we applied non-metric multidimensional scaling (NMDS) to the dissimilarities dataset to assess if the composition of the microbial communities appear to be related more to Habitat or Source.
