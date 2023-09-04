@@ -1,6 +1,6 @@
 ---
 title: "Chickadee Pathogen Data Statistical Analysis"
-author: "Junsoo Park, T00625144"
+author: "Junsoo Park"
 date: "2023-09-02"
 output:
   pdf_document: default
@@ -12,6 +12,8 @@ knitr::opts_chunk$set(warning=FALSE, echo=FALSE, message=FALSE, results=FALSE)
 ```
 
 # TRU 4001 - Biostatistics - Final Project
+
+&nbsp;
 
 ## Introduction
 
@@ -43,6 +45,10 @@ theme_set(theme_classic())
 chickadeeData <- read.csv("ChickadeeData.csv")
 dissimilaritiesData <- read.csv("ChickadeeDissimilarities.csv")
 ```
+
+&nbsp;
+
+&nbsp;
 
 ### 1. Numerical Summary
 
@@ -79,6 +85,10 @@ TarsusLen: 30 non-missing (Min: 16.8, Median: 18.25, Max: 19.5) [missing: 17]
 We find that 15.1% of the chickadee dataset is missing, while none of the dissimilarities dataset is.
 
 The data shows a variety of bird habitats and sources, with most coming from feathers. The data also suggests wide variations in the numerical variables, like EscShi and Entero. There are also missing values for variables related to bird physical features.
+
+&nbsp;
+
+&nbsp;
 
 ### 2. Graphical Summary
 
@@ -164,13 +174,21 @@ grid.arrange(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, ncol = 4)
 
 Upon visual inspection, we find that *Escherichia/Shigella* and *Enterococcus* distributions are right-skewed, and that pathogen richness, wing size, tail length, and tarsus length are approximately normally distributed.
 
-### 3. Two-Sample *t*-Test For *Escherichia/Shigella* **Between Nest and Feathers**
+&nbsp;
+
+&nbsp;
+
+### 3. Two-Sample *t*-Test For *Escherichia/Shigella* Between Nest and Feathers
 
 In the two-sample *t*-test conducted to determine whether the mean abundance of bacteria identified as genus *Escherichia/Shigella* differs significantly between nests and feathers, our null hypothesis is that the true difference in means between the feather group and the nest group is equal to 0. The alternative hypothesis is that this difference is not equal to 0.
 
 Based on the test results for the natural logarithm-transformed variable, the test statistic *t* is 4.0756, and the p-value is 0.0001842. Given that the p-value is less than the alpha level of 0.05, we reject the null hypothesis.
 
 We conclude that there is a statistically significant difference in the mean abundance of bacteria identified as genus *Escherichia/Shigella* between nests and feathers, based on this data.
+
+&nbsp;
+
+&nbsp;
 
 ### 4. Mann-Whitney U-Test For *Escherichia/Shigella* Between Nest and Feathers
 
@@ -182,13 +200,21 @@ We conclude that there is statistically significant evidence to suggest that the
 
 The Mann-Whitney U-test is useful in this context as it does not require the normal distribution assumption that the two-sample t-test does. Therefore, it allows us to extend our conclusions to the original, untransformed population, providing further evidence for a difference in bacterial abundance between the two groups.
 
-### 5. Two-Sample *t*-Test For *Enterococcus* **Between Nest and Feathers**
+&nbsp;
+
+&nbsp;
+
+### 5. Two-Sample *t*-Test For *Enterococcus* Between Nest and Feathers
 
 In the two-sample t-test conducted to assess whether the mean abundance of bacteria identified as genus *Enterococcus* differs significantly between nests and feathers, our null hypothesis is that the true difference in means between the feather group and the nest group is equal to 0. The alternative hypothesis is that this difference is not equal to 0.
 
 Based on the results of the test on the natural logarithm transformed data, the test statistic *t* is -2.6195, and the p-value is 0.01196. Since the p-value is less than the alpha level of 0.05, we reject the null hypothesis.
 
 We conclude that there is statistically significant evidence to suggest that the mean abundance of bacteria identified as genus *Enterococcus* differs between nests and feathers, based on this data. Additionally, the test indicates that the mean abundance of this bacterial genus is higher in nests compared to feathers.
+
+&nbsp;
+
+&nbsp;
 
 ### 6. Mann-Whitney U-Test For *Enterococcus* Between Nest and Feathers
 
@@ -197,6 +223,10 @@ In the Mann-Whitney U-test to assess whether the population distribution of the 
 From the test results, the test statistic *W* is 148, and the p-value is 0.01826. Given that the p-value is less than the alpha level of 0.05, we reject the null hypothesis.
 
 We conclude that there is statistically significant evidence to suggest that the population distribution of the abundance of bacteria identified as genus *Enterococcus* differs between nests and feathers. Furthermore, based on this evidence and previous data, we infer that the abundance of *Escherichia/Shigella* is higher in feathers, while the abundance of *Enterococcus* is higher in nests.
+
+&nbsp;
+
+&nbsp;
 
 ### 7. Analysis of Variance for Pathogen Richness and Habitat
 
@@ -210,6 +240,10 @@ The Multiple $R^2$ value of 0.1934 indicates that approximately 19.34% of the va
 
 We conclude that habitat is a statistically significant predictor of pathogen richness, although it explains only a limited portion of the variability. The trend in the estimates of coefficients implies that pathogen richness tends to increase in more densely populated human environments, such as semi-urban and urban areas, based on this data.
 
+&nbsp;
+
+&nbsp;
+
 ### 8. Kruskal-Wallis Test for Pathogen Richness and Habitat
 
 In the Kruskal-Wallis test, we assessed whether mean pathogen richness varies significantly across different habitats. The null hypothesis is that there are no differences in mean pathogen richness across habitats, while the alternative hypothesis is that at least one habitat exhibits a difference in mean pathogen richness.
@@ -218,7 +252,11 @@ The Kruskal-Wallis $X^2$ test statistic is 13.587, with 2 degrees of freedom, an
 
 We conclude that there is a statistically significant difference in mean pathogen richness across habitats, based on this data. This evidence aligns with the findings from the linear model, supporting the significance of habitat as a factor influencing pathogen richness.
 
-### 9. Tukey-Kramer Test for Pathogen Richness and Specfic Habitat
+&nbsp;
+
+&nbsp;
+
+### 9. Tukey-Kramer Test for Pathogen Richness and Specific Habitat
 
 In the Tukey-Kramer post-hoc test, we assessed which specific habitats differ significantly in terms of mean pathogen richness. The test provides pairwise comparisons between the three habitat types: rural, semi-urban, and urban.
 
@@ -230,6 +268,10 @@ Semi-Urban vs. Urban: The estimated mean difference is -5.21, with a p-value of 
 
 Based on the Tukey-Kramer test, we can conclude that pathogen richness is significantly higher in urban areas compared to rural areas. However, no statistically significant differences in pathogen richness were found between rural and semi-urban habitats, or between semi-urban and urban habitats. These findings are consistent with those from the linear regression model and the Kruskal-Wallis test, further substantiating the influence of habitat on pathogen richness.
 
+&nbsp;
+
+&nbsp;
+
 ### 10. Contingency Table Analysis and Chi-Squared Test for Community Richness and Sex
 
 In this contingency table analysis using Pearson's Chi-squared test, we assessed whether community richness on feathers is independent of the sex of mountain chickadees. The null hypothesis is that community richness and the sex of the bird are independent variables, while the alternative hypothesis is that they are not independent.
@@ -237,6 +279,10 @@ In this contingency table analysis using Pearson's Chi-squared test, we assessed
 According to the test results, the Chi-squared statistic $X^2$ is 1.0325 with 1 degree of freedom, and the p-value is 0.3096. Given that the p-value exceeds the alpha level of 0.05, we fail to reject the null hypothesis.
 
 We conclude that there is insufficient evidence to suggest that community richness on feathers is dependent on the sex of mountain chickadees, based on this data.
+
+&nbsp;
+
+&nbsp;
 
 ### 11. Linear Regression of Morphological Features and Pathogen Richness
 
@@ -254,6 +300,10 @@ None of the single predictors are statistically significant based on their p-val
 
 The multiple regression model yielded a p-value of 0.3015 and an $R^2$ of 0.1708, indicating that collectively, the predictors are not statistically significant at explaining the variability in pathogen richness. The multiple regression model also failed to reach statistical significance, supporting the null hypothesis that none of these predictors significantly influence pathogen richness on feathers.
 
+&nbsp;
+
+&nbsp;
+
 ### 12. Linear Regression of Morphological Features and Pathogen Richness With Outliers Removed
 
 After identifying and removing the most extreme outliers from our dataset, we refit our simple linear regression models and found that two predictor variables remained statistically significant.
@@ -265,6 +315,10 @@ Tail Length: The model estimates a coefficient of 2.1883 for Tail Length, with a
 When we used all four predictors in a multiple linear regression model, the overall model was significant with a p-value of 0.006673, and a Multiple $R^2$ value of 0.5476. This suggests that our model explains approximately 54.76% of the variability in the response variable, which is a substantial improvement from the individual models.
 
 Therefore, after excluding the most extreme outliers, we reject the null hypothesis that the predictors have no effect on the response variable for both the individual and multiple regression models. We conclude that there exists at least one predictor that has a statistically significant effect on the response variable.
+
+&nbsp;
+
+&nbsp;
 
 ### 13. Multiple Linear Regression of Morphological Features and Pathogen Richness to Find Best Two Predictors
 
@@ -306,9 +360,17 @@ The model that includes Wing Chord and Tarsus Length as predictors stands out as
 
 This finding is consistent with our single linear regression analysis, which also identified Wing Chord as a significant predictor. Although Tail Length was identified as a significant predictor in the single linear regression, the multiple regression analysis showed that a model including Wing Chord and Tarsus Lenth is superior based on our evaluation criteria.
 
+&nbsp;
+
+&nbsp;
+
 ### 14. Two-Sample *t*-Test for Pathogen Richness on Feathers between Sexes
 
 In this study, we assessed whether there is a significant difference in the mean pathogen richness on feathers between male and female birds. To do so, we used a two-sample *t*-test. The null hypothesis is that there is no significant difference between the means, while the alternative hypothesis asserts otherwise. Our analysis yielded the *t*-value of -1.5165 with 20 degrees of freedom, and a p-value of 0.1451. We find that the p-value exceeds the alpha level of 0.05. Thus, there is insufficient evidence to reject the null hypothesis. We conclude that there is no statistically significant difference in the mean pathogen richness on feathers between male and female birds based on this data.
+
+&nbsp;
+
+&nbsp;
 
 ### 15. Analysis of Covariance on Linear Models between Sexes
 
@@ -317,6 +379,10 @@ In this study, we used analysis of covariance to investigate whether the linear 
 For the model focusing on Wing Chord and Bird Sex, the p-value for the effect of Bird Sex was 0.771, suggesting no significant difference between sexes. Additionally, an interaction term between Wing Chord and Bird Sex was added to the model, resulting in an F-statistic of 0.0179 and an associated p-value of 0.895. Both of these p-values are above the 0.05 significance level, indicating no significant interaction. Similarly, in the model that incorporated Tail Length and BirdSex, the p-value for the Bird Sex effect was 0.5282. When the interaction term between Tail Length and Bird Sex was considered, it yielded an F-statistic of 0.7468 and a p-value of 0.399, both of which also exceed the 0.05 significance level. In both cases, the Analysis of Variance tables suggested that including the interaction term did not significantly improve the fit of the models, as evidenced by their respective p-values of 0.895 and 0.3989.
 
 Given these findings, there is insufficient evidence to reject the null hypothesis, which is that there is no difference in the linear associations between pathogen richness and either Wing Chord or Tail Length, for male and female birds. Therefore, we conclude that the linear associations do not significantly differ between sexes in this dataset.
+
+&nbsp;
+
+&nbsp;
 
 ### 16. Principal Component Analysis on Morphological Features
 
@@ -351,6 +417,10 @@ The biplot revealed that the female group was generally lower on both PC1 and PC
 
 In summary, the PCA indicates that Wing Chord, Bird Weight, and Tail Length are the major contributors to the first principal component and are positively correlated with each other. Tarsus Length, however, exhibits different behavior, especially in its significant contribution to the second principal component.
 
+&nbsp;
+
+&nbsp;
+
 ### 17. Simple Linear Regression Model for Pathogen Richness with the First Principal Component as a Predictor
 
 In this study, we fit a a simple linear regression model with Pathogen Richness as a response variable and predictor variable equal to the first principal component, and compared it to the simple linear regression model with Wing Chord as a predictor.
@@ -360,6 +430,10 @@ In the first model, where Pathogen Richness is predicted by PC1, the coefficient
 In the second and third models, where Pathogen Richness is predicted by Wing Chord, the coefficient for Wing Chord is 2.2607, with a standard error of 0.9686, resulting in a t-value of 2.334 and a p-value of 0.0301. This indicates that Wing Chord is a significant predictor of Pathogen Richness at the 5% significance level. These models explain 21.41% of the variance in Pathogen Richness ($R^2$ = 0.2141), which is higher than the PC1 model but still not very large. The F-statistic of 5.448 with a p-value of 0.03014 further confirms that the model is a better fit than the PC1 model but still only explains a small proportion of the variance in Pathogen Richness.
 
 In conclusion, Wing Chord is a significant predictor of Pathogen Richness, whereas the first principal component (PC1) is not. However, both models explain a relatively small amount of variance in Pathogen Richness, indicating that other factors not included in these models are likely important in predicting pathogen richness.
+
+&nbsp;
+
+&nbsp;
 
 ### 18. Multiple Linear Regression Model for Pathogen Richness with the First Two Principal Components as Predictors
 
@@ -375,11 +449,19 @@ In summary, using the first two principal components provides a lower dimensiona
 
 As the first principal component was not found to be statistically significant in prediction with linear regression, let us test the second principal component:
 
+&nbsp;
+
+&nbsp;
+
 ### 18.2. Simple Linear Regression Model for Pathogen Richness with the Second Principal Component as a Predictor
 
 The F-statistic is 14.6 with a p-value of 0.00107, below the alpha level of 0.05. We reject the null hypothesis and conclude from this data that this model is statistically significant in explaining the variance in the response variable, pathogen richness. The predictor variable, the second principal component, has a t-value of 3.82, below the alpha level of 0.05. We conclude that the second principal component is statistically significant in predicting pathogen richness. The multiple R-squared value is 0.4219, and this suggests that approximately 42.19% of the variability in pathogen richness is explained by the second principal component.
 
 While the first principal component captured more of the variance in the predictor variables, this evidence demonstrates that this does not necessarily relate to how well the component predicts the response variable. While counter-intuitive at first glace - the second principal component in this case was superior to predicting pathogen richness.
+
+&nbsp;
+
+&nbsp;
 
 ### 19. Metric Multidimensional Scaling (MDS) to Assess the Composition of Microbial Communities Relating to Habitat or Source
 
@@ -417,6 +499,10 @@ grid.arrange(p1, p2, ncol = 2)
 ```
 
 In this study, we applied metric multidimensional scaling (MDS) to the dissimilarities dataset to assess if the composition of the microbial communities appear to be related more to Habitat or Source. Upon visual inspection of the MDS, microbial community composition appears to be more closely associated with Source, as the different categories of Source are more closely clustered.
+
+&nbsp;
+
+&nbsp;
 
 ### 20. Nonmetric Multidimensional Scaling (NMDS) to Assess the Composition of Microbial Communities Relating to Habitat or Source
 
@@ -467,6 +553,10 @@ In this study, we applied non-metric multidimensional scaling (NMDS) to the diss
 The Shepard plot suggests that both the linear and non-metric fits are excellent fits, and indicates that the lower-dimensional representation of the data is capturing almost all of the dissimilarity structure in the original high-dimensional data. The higher $R^2$ value in the non-metric Fit suggests that the NMDS solution is a slightly better model, strictly considering $R^2$.
 
 From these scatter plots, the composition of the microbial communities appear to be related more to Source, rather than Habitat, as the different categories of Source are more closely clustered.
+
+&nbsp;
+
+&nbsp;
 
 ## References
 
