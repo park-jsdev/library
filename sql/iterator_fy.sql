@@ -27,7 +27,11 @@ BEGIN
                 v_year := v_year + 1;
             END IF;
 
-            v_date := LAST_DAY(TO_DATE('01-' || i || '-' || v_year, 'DD-MM-YYYY')); -- get the last day of the month
+            v_date := LAST_DAY(TO_DATE('01-' || 
+             CASE
+                WHEN i <= 9 THEN TO_CHAR(i + 3) -- Apr=1, May=2, ..., Dec=9
+                ELSE TO_CHAR(i - 9)           -- Jan=10, Feb=11, Mar=12
+            END || '-' || v_year, 'DD-MM-YYYY')); -- get the last day of the month
             INSERT INTO temp_table
 
             SELECT * FROM (
