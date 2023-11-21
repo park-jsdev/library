@@ -60,6 +60,9 @@ for filename in os.listdir(directory):
             for i in range(df.shape[0]):
                 for column_name in df.columns:
                     writer.sheets[sheet_name].cell(row=last_non_empty_row + i + 1, column=column_numbers[column_name], value=df.at[i, column_name])
+        
+            # Update last_non_empty_row
+            last_non_empty_row += df.shape[0]
         except Exception as e:
             print(f"An error occurred while processing the file {filename}: {e}")
             continue
