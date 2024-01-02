@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Survey Form</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <h1 id="title">Survey Form</h1>
+    <p id="description">Thank you for taking the time to help us improve the platform</p>
+    <form id="survey-form" method="post">
+      <fieldset>
+        <label for="name" id="name-label">Name: <input id="name" name="name" type="text" required placeholder="Enter your name"></label>
+        <label for="email" id="email-label">Email: <input id="email" name="email" type="email" required placeholder="Enter your email"></label>
+        <label for="number" id="number-label">Number: <input id="number" name="number" type="number" min="0" max="1000" placeholder="Enter your number"></label>
+      </fieldset>
+      <fieldset>
+        <label for="dropdown">Dropdown: 
+          <select id="dropdown" name="dropdown">
+            <option value="">(select one)</option>
+            <option value="1">One</option>
+            <option value="2">Two</option>
+          </select>
+      </fieldset>
+      <fieldset>
+        <legend>Account Type (required)</legend>
+        <label for="personal-account"><input id="personal-account" type="radio" name="account-type" class="inline" value="rb1" checked /> Personal</label>
+        <label for="business-account"><input id="business-account" type="radio" name="account-type" class="inline" value="rb2" /> Business</label>
+      </fieldset>
+      <fieldset>
+        <input type="checkbox" id="checkbox1" name="checkbox1" value="cb1">
+        <label for="checkbox1"> I have a bike</label><br>
+        <input type="checkbox" id="checkbox2" name="checkbox2" value="cb2">
+        <label for="checkbox2"> I have a car</label><br>
+        <input type="checkbox" id="checkbox3" name="checkbox3" value="cb3">
+        <label for="checkbox3"> I have a boat</label>
+      </fieldset>
+      <fieldset>
+        <label for="bio">Provide a bio:
+          <textarea id="bio" name="bio" rows="3" cols="30" placeholder="I like coding on the beach..."></textarea>
+        </label>
+      </fieldset>
+      <input id="submit" type="submit" value="Submit" />
+    </form>
+
+  </body>
+</html>
