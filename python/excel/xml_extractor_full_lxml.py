@@ -44,30 +44,31 @@ def parse_xml(file):
 
     if team_or_individual == '1':  # Individual
         # Define individual elements
+
         individual_elements = {
-            'Last name': './/IndividualInformation/Individual_information/Row1/LastName',
-            'First name': './/IndividualInformation/Individual_information/Row1/FirstName',
-            'Email': './/IndividualInformation/Individual_information/Row1/Email',
-            'Language': './/IndividualInformation/Individual_information/Row1/Language',
-            'Branch/Office': './/IndividualInformation/Individual_information/Row1/BranchOffice',
-            'Region': './/IndividualInformation/Individual_information/Row1/Regions',
+            'Last name': './/Individual_information_Row2/Individual_information_Last_name',
+            'First name': './/Individual_information_Row2/Individual_information_First_name',
+            'Email': './/Individual_information_Row3/Individual_information_Email',
+            'Language': './/Individual_information_Row3/Individual_information_Language',
+            'Branch/Office': './/Individual_information_Row4/Individual_information_BranchOffice',
+            'Region': './/Individual_information_Row5/Individual_information_Region',
             'Category': './/Category_drop_down_list',
-            'Title': './/Branch_endorsement_table/Branch_endorsement_table_Row4/Branch_head_information_title',
-            ' Last name': './/Branch_endorsement_table/Branch_endorsement_table_Row5/Branch_head_information_last_name',
-            ' First name': './/Branch_endorsement_table/Branch_endorsement_table_Row5/Branch_head_information_first_name',
-            ' Branch/Office': './/Branch_endorsement_table/Branch_endorsement_table_Row6/Branch_head_information_branch_office',
-            'Last name  ': './/Nominator_table/Nominator_table_Row2/Nominator_last_name',
-            'First name  ': './/Nominator_table/Nominator_table_Row2/Nominator_first_name',
-            'Email  ': './/Nominator_table/Nominator_table_Row3/Nominator_email',
-            'Language  ': './/Nominator_table/Nominator_table_Row3/Nominator_language',
-            'Branch/Office  ': './/Nominator_table/Nominator_table_Row4/Nominator_branch_office',
-            'Details': './/Summary_of_accomplishments/Summary_of_accomplishments_input_box',
-            'Type of document 1': './/Support_type_link_table/Support_type_link_table_Row3/Type_Row1',
-            'Hyperlink to document 1': './/Support_type_link_table/Support_type_link_table_Row3/Link_Row1',
-            'Type of document 2': './/Support_type_link_table/Support_type_link_table_Row4/Type_Row2',
-            'Hyperlink to document 2': './/Support_type_link_table/Support_type_link_table_Row4/Link_Row2',
-            'Type of document 3': './/Support_type_link_table/Support_type_link_table_Row5/Type_Row3',
-            'Hyperlink to document 3': './/Support_type_link_table/Support_type_link_table_Row5/Link_Row3'
+            'Title': './/Branch_endorsement_table_Row4/Branch_head_information_title',
+            ' Last name': './/Branch_endorsement_table_Row5/Branch_head_information_last_name',
+            ' First name': './/Branch_endorsement_table_Row5/Branch_head_information_first_name',
+            ' Branch/Office': './/Branch_endorsement_table_Row6/Branch_head_information_branch_office',
+            'Last name  ': './/Nominator_table_Row2/Nominator_last_name',
+            'First name  ': './/Nominator_table_Row2/Nominator_first_name',
+            'Email  ': './/Nominator_table_Row3/Nominator_email',
+            'Language  ': './/Nominator_table_Row3/Nominator_language',
+            'Branch/Office  ': './/Nominator_table_Row4/Nominator_branch_office',
+            'Details': './/Summary_of_accomplishments_input_box',
+            'Type of document 1': './/Support_type_link_table_Row3/Type_Row1',
+            'Hyperlink to document 1': './/Support_type_link_table_Row3/Link_Row1',
+            'Type of document 2': './/Support_type_link_table_Row4/Type_Row2',
+            'Hyperlink to document 2': './/Support_type_link_table_Row4/Link_Row2',
+            'Type of document 3': './/Support_type_link_table_Row5/Type_Row3',
+            'Hyperlink to document 3': './/Support_type_link_table_Row5/Link_Row3'
         }
 
         # Extract individual elements and assign values directly (not as a list)
