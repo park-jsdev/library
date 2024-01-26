@@ -1,0 +1,24 @@
+#navbar {
+    position: relative;
+    float: left;
+  }
+  
+  @media (max-width: 768px) {
+    .nav {
+      width: 358px;
+    }
+  
+    .section {
+      width: 318px;
+    }
+  
+  }
+  
+  @media (max-width: 1199px) and (min-width: 769px) {
+    .nav{
+      width: 675px;
+    }
+    .section{
+      width: 633px;
+    }
+  }
