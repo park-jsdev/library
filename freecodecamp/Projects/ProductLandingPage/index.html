@@ -28,18 +28,46 @@
           <h1 class="hero-title">OUR NEW CURRICULUM</h1>
           <nav id="nav-bar">
         <ul>
-          <li><a class="nav-link" href="#student-info" accesskey="i">INFO</a></li>
-          <li><a class="nav-link" href="#html-questions" accesskey="h">HTML</a></li>
-          <li><a class="nav-link" href="#css-questions" accesskey="c">CSS</a></li>
+          <li><a class="nav-link" href="#1" accesskey="i">INFO</a></li>
+          <li><a class="nav-link" href="#2" accesskey="h">HTML</a></li>
+          <li><a class="nav-link" href="#3" accesskey="c">CSS</a></li>
         </ul>
       </nav>
 
-          <p class="hero-subtitle">
+          <p class="subtitle">
             Our efforts to restructure our curriculum with a more project-based
             focus
           </p>
         </header>
         </section>
+        <section role="1" aria-labelledby="1 text" id="1">
+          <h2 id="video-info">Video Info</h2>
+          <div class="video">
+            <video id="video" width="320" heigh="240" controls>
+              <source src="movie.mp4" type="video/mp4">
+              Your browser does not support the video tag.
+            </video>
+          </div>
+        </section>
+        <section role="2" aria-labelledby="2 text" id="2">
+          <h2 id="form-info">Form Info</h2>
+          <form id="form" method="post" action="https://www.freecodecamp.com/email-submit">
+          <div class="info">
+            <label for="email">Email:</label>
+            <input type="email" name="email" id="email" placeholder="bobsmith@hotmail.com"/>
+          </div>
+          <div class="question-block">
+              <label for="css-textarea">Do you have any questions:</label>
+            </div>
+            <div class="answer">
+              <textarea id="css-textarea" name="css-questions" rows="5" cols="24" placeholder="Who is flexbox..."></textarea>
+            </div>
+            <input id="submit" type="submit">
+          </form>
+        </section>
+        <section role="3" aria-labelledby="3 text" id="3">
+        </section>
+
     </main>
   </body>
 </html>
