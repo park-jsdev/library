@@ -1,0 +1,23 @@
+<input id="photo" type="file">
+<div id="results"></div>
+<script type="module">
+  import { client } from "@gradio/client";
+
+  async function loaded(imageData) {
+    const app = await client("parkjsdev/pet_classifier");
+    const result = await app.predict("/predict", [imageData]);
+    const label = result['data'][0]['confidences'][0]['label'];
+    results.innerHTML = `<br/><img src="${imageData}" width="300"> <p>${label}</p>`
+  }
+
+  function read() {
+    const reader = new FileReader();
+    reader.addEventListener('load', async () => {
+      loaded(reader.result)
+    });
+    reader.readAsDataURL(photo.files[0]);
+  }
+
+  const photo = document.getElementById('photo');
+  photo.addEventListener('input', read);
+</script>
