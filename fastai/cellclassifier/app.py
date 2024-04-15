@@ -1,3 +1,9 @@
+# app.py
+import gradio as gr
+from fastai.vision.all import *
+
+learn = load_learner('model.pkl')
+
 def predict(uploaded_image):
     try:
         img = PILImage.create(uploaded_image)
