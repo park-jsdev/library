@@ -7,33 +7,16 @@
 // s is and Anagram of t if their char counts are equal. We can use 2 hashmaps to compare
 class Solution {
     public boolean isAnagram(String s, String t) {
-        // if the lengths are different, we will immediately return false
         if (s.length() != t.length()) return false;
-
-        Map<Character, Integer> s_map = new HashMap<>();
-        Map<Character, Integer> t_map = new HashMap<>();
-        
-        // Iterate String s
-        for (int i=0;i<s.length();i++){
-            char c = s.charAt(i);
-            if (!s_map.containsKey(c)){
-                s_map.put(c, 1);
-            } else {
-                s_map.put(c, s_map.get(c)+1);
+        char[] s_chars = s.toCharArray();
+        char[] t_chars = t.toCharArray();
+        Arrays.sort(s_chars);
+        Arrays.sort(t_chars);
+        for (int i=0;i<s_chars.length;i++){
+            if (s_chars[i] != t_chars[i]){
+                return false;
             }
         }
-
-        // Iterate String t
-        for (int i=0;i<t.length();i++){
-            char c = t.charAt(i);
-            if (!t_map.containsKey(c)){
-                t_map.put(c, 1);
-            } else {
-                t_map.put(c, t_map.get(c)+1);
-            }
-        }
-
-        // Compare both maps to ensure they are equal
-        return s_map.equals(t_map);
+        return true;
     }
 }
