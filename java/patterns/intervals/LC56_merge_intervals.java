@@ -1,31 +1,30 @@
-// Merge Intervals
-// Time: O(nlogn) due to sort
+// Time: O(n log n) because of sort, O(n) if no sort
 // Space: O(n)
-/**
-    Classic merge intervals. We first need to sort the input, then compare ends of the prev with the start of the next.
-    If they overlap, extend the prev interval's end to the curr's end, else add the curr to the result list.
 
-    Key implementation details are to maintain an ArrayList for results list, sorting it with the comparator, and
-    converting back to the int[][] format to return.
- */
-
- class Solution {
+class Solution {
     public int[][] merge(int[][] intervals) {
-        ArrayList<int[]> ans  = new ArrayList<>();
-        Arrays.sort(intervals, (a,b) -> Integer.compare(a[0],b[0]));
-        ans.add(intervals[0]);
+        ArrayList<int[]> li = new ArrayList<>();
+
+        if (intervals.length == 1) return intervals;
+        Arrays.sort(intervals, (a,b) -> Integer.compare(a[0], b[0])); // sort by the first index
+        
+        int[] cur_int = intervals[0];
+        li.add(cur_int);
+
         for (int i=1;i<intervals.length;i++){
-            // compare the values of prevEnd and curStart
-            int curStart = intervals[i][0];
-            if (curStart <= ans.get(ans.size() - 1)[1]){
-                // merge
-                ans.get(ans.size() - 1)[1] = Math.max(ans.get(ans.size()-1)[1], intervals[i][1]); // extend the end of the prev interval
-            } else { // add non-overlapping interval
-                ans.add(intervals[i]);
+            int cur_end = cur_int[1];
+            int nxt_start = intervals[i][0];
+            int nxt_end = intervals[i][1];
+
+            if (cur_end >= nxt_start) {
+                // There is an overlap, merge the current and next intervals
+                cur_int[1] = Math.max(cur_end, nxt_end);
+            } else {
+                // No overlap, add the next interval to the list and update the currentInterval
+                cur_int = intervals[i];
+                li.add(cur_int);
             }
         }
-        int[][] res = new int[ans.size()][2];
-        ans.toArray(res);
-        return res;
+        return li.toArray(new int[li.size()][]);
     }
 }
