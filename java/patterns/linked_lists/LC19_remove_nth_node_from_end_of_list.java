@@ -17,39 +17,19 @@
  * }
  */
 
-class Solution {
+ class Solution {
     public ListNode removeNthFromEnd(ListNode head, int n) {
-        ListNode fast = head;
-        ListNode slow = head;
-        ListNode slow_prev = null;
-
-        // Track the next and prev
-        
-        // Move the fast ptr to n ahead, n <= size
+        ListNode res = new ListNode(0, head);
+        ListNode dummy = res;
         for (int i=0;i<n;i++){
-            fast = fast.next;
+            head = head.next;
+        }
+        while (head != null){
+            head = head.next;
+            dummy = dummy.next;
         }
 
-        // Increment all pointers
-        while (fast != null){
-            fast = fast.next;
-            slow_prev = slow;
-            slow = slow.next;
-        }
-
-        // when fast reaches null, we have reached the end with the conditions:
-        // slow is at node to remove
-        // slow_prev is the prev node of slow
-
-        if (slow == head) {
-            return head.next;
-        }
-
-        // simply connect slow_prev to slow.next
-        if (slow_prev != null){
-            slow_prev.next = slow.next;
-        }
-
-        return head;        
+        dummy.next = dummy.next.next;
+        return res.next;
     }
 }
