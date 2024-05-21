@@ -1,27 +1,24 @@
-// Backtracking
-// Time: O(nk)
-// Space: O(k)
+// Time: O(k (n choose k). Amortized to O(n^k) if k is a constant.
+// Space: O(k (n choose k). Amortized to O(n^k) if k is a constant.
 
 class Solution {
+    List<List<Integer>> res = new ArrayList<>();
+
     public List<List<Integer>> combine(int n, int k) {
-        List<List<Integer>> res = new ArrayList<>();
-        List<Integer> comb = new ArrayList<>();
-        backtrack(res, comb, 1, n, k);
+        search(new ArrayList<>(), 1, k, n);
         return res;
     }
 
-    public void backtrack(List<List<Integer>> res, List<Integer> comb, int start, int n, int k){
-        if (comb.size() == k){ // if the combination reaches size k, a valid combination is formed. Add to res.
-            res.add(new ArrayList<>(comb));
+    private void search(List<Integer> li, int start, int k, int n){
+        if (li.size() == k){
+            res.add(new ArrayList<>(li));
             return;
         }
-
-        for (int num=start;num<=n;num++){ // iterate start to n, the above will handle combinations of size k
-            // Take
-            comb.add(num);
-            backtrack(res, comb, num+1, n, k);
-            // Undo
-            comb.remove(comb.size()-1);
+    
+        for (int i=start;i<=n;i++){
+            li.add(i); // take
+            search(li, i+1, k, n); // recursive call with next start
+            li.remove(li.size()-1); // not take
         }
     }
 }
