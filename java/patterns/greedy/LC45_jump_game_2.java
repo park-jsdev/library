@@ -1,26 +1,24 @@
-// Greedy
 // Time: O(n)
 // Space: O(1)
-/**
-    Note the BFS and Sliding Window approach
- */
 
 class Solution {
     public int jump(int[] nums) {
-        int res = 0;
-        int l = 0;
-        int r = 0;
+        if (nums.length == 1) return 0;
 
-        // Sliding Window approach
-        while (r < nums.length-1){
-            int furthest = 0;
-            for (int i=l;i<=r;i++){
-                furthest = Math.max(furthest, i + nums[i]);
+        int jumps = 0, curEnd = 0, reach = 0, n = nums.length-1;
+
+        for (int i=0;i<n;i++){
+            reach = Math.max(reach, i + nums[i]);
+
+            if (i == curEnd){
+                jumps++;
+                curEnd = reach;
+
+                if (curEnd >= n){
+                    break;
+                }
             }
-            l = r + 1;
-            r = furthest;
-            res++;
         }
-        return res;
+        return jumps;
     }
 }
