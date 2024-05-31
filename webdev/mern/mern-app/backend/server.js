@@ -2,12 +2,17 @@ const express = require('express');
 const connectDB = require('./config/db');
 const formRoutes = require('./routes/formRoutes');
 const dotenv = require('dotenv');
+const cors = require('cors');
 
 dotenv.config();
 connectDB();
 
 const app = express();
 app.use(express.json());
+
+app.use(cors({
+    origin: 'http://localhost:3000'
+  }));
 
 app.use('/api/forms', formRoutes);
 
