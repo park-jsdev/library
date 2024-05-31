@@ -10,22 +10,22 @@ services:
       - mongo-data:/data/db
 
   backend:
-    build: ./backend
+    build: ./mern-app/backend
     container_name: backend
     ports:
       - "5000:5000"
-    env_file: ./backend/.env
+    env_file: ./mern-app/backend/.env
     depends_on:
       - mongo
     networks:
       - mern-network
 
   frontend:
-    build: ./frontend
+    build: ./mern-app/frontend
     container_name: frontend
     ports:
       - "3000:3000"
-    env_file: ./frontend/.env
+    env_file: ./mern-app/frontend/.env
     depends_on:
       - backend
     networks:
