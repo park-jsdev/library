@@ -8,6 +8,8 @@ services:
       - "27017:27017"
     volumes:
       - mongo-data:/data/db
+    networks:
+      - mern-network
 
   backend:
     build: ./mern-app/backend
