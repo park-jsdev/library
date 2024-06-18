@@ -8,55 +8,25 @@
  *     ListNode(int val, ListNode next) { this.val = val; this.next = next; }
  * }
  */
-
-// In-place Linked List
-// Time: O(n)
-// Space: O(n)
-/**
-    Note that we are building in place. Understand that passing in Java objects as parameters to functions
-    passes in references, not the objects themselves. If you want to maintain the original objects (SOLID)
-    you need to clone them within the function.
- */
-
 class Solution {
-    public ListNode mergeTwoLists(ListNode list1, ListNode list2) {
-        // Basic Checks
-        if (list1 == null && list2 == null) return null;
-        if (list1 == null) return list2;
-        if (list2 == null) return list1;
-        // they are both not null
+    public ListNode mergeTwoLists(ListNode l1, ListNode l2) {
+        if (l1 == null) return l2;
+        if (l2 == null) return l1;
 
-        ListNode res; // set the head of output
-        // Modify 1 in place, pick the head
-        if (list1.val <= list2.val){
-            res = list1;
-            list1 = list1.next;
-        } else {
-            res = list2;
-            list2 = list2.next;
-        }
-        ListNode temp = res; // the temp pointer to modify the output
+        ListNode dummy = new ListNode(0);
+        ListNode curr = dummy;
 
-        // while there exists non-null nodes
-        while (list1 != null && list2 != null){
-            // if list 1 <= list 2
-            if (list1.val <= list2.val){
-                temp.next = list1;
-                list1 = list1.next;
-            } else { // if list 2 < list 1
-                temp.next = list2;
-                list2 = list2.next;
+        while (l1 != null && l2 != null){
+            if (l1.val <= l2.val){
+                curr.next = l1;
+                l1 = l1.next;
+            } else {
+                curr.next = l2;
+                l2 = l2.next;
             }
-            temp = temp.next;
+            curr = curr.next;
         }
-
-        // Append remaining nodes, does not need to iterate
-        if (list1 != null){
-            temp.next = list1;
-        } else if (list2 != null){
-            temp.next = list2;
-        }
-        
-        return res;
+        curr.next = l1 == null ? l2 : l1;
+        return dummy.next;
     }
 }
