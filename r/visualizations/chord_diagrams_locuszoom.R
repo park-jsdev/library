@@ -35,7 +35,7 @@ df_for_chord$DiseaseModel <- factor(df_for_chord$DiseaseModel, levels = all_dise
 df_for_chord$TaskArea <- factor(df_for_chord$TaskArea, levels = all_task_areas)
 
 # Wrap long text for better display
-wrap_text <- function(text, width = 15) {
+wrap_text <- function(text, width = 8) {
   str_wrap(text, width = width)
 }
 df_for_chord$DiseaseModel <- wrap_text(df_for_chord$DiseaseModel)
@@ -45,31 +45,29 @@ df_for_chord$TaskArea <- wrap_text(df_for_chord$TaskArea)
 # Create a matrix from the dataframe
 chord_matrix <- xtabs(Count ~ DiseaseModel + TaskArea, data = df_for_chord)
 
-# Define a custom color palette inspired by Tailwind CSS
-tailwind_colors <- c(
-  "#ef4444", "#f97316", "#f59e0b", "#eab308", "#84cc16", "#22c55e", "#10b981", "#14b8a6", 
-  "#06b6d4", "#0ea5e9", "#3b82f6", "#6366f1", "#8b5cf6", "#a855f7", "#d946ef", "#ec4899", 
-  "#f43f5e"
-)
+# Define the Locus Zoom color palette
+locus_zoom_colors <- c("#D43F3A", "#EEA236", "#5CB85C", "#46B8DA", "#357EBD", "#9632B8", 
+                       "#B8B8B8", "#8C8C8C", "#D3D3D3", "#CC79A7", "#F0E442", "#009E73", 
+                       "#56B4E9")
 
 # Ensure the color palette is long enough
-if (length(tailwind_colors) < length(unique(c(df_for_chord$DiseaseModel, df_for_chord$TaskArea)))) {
-  tailwind_colors <- rep(tailwind_colors, length.out = length(unique(c(df_for_chord$DiseaseModel, df_for_chord$TaskArea))))
+if (length(locus_zoom_colors) < length(unique(c(df_for_chord$DiseaseModel, df_for_chord$TaskArea)))) {
+  locus_zoom_colors <- rep(locus_zoom_colors, length.out = length(unique(c(df_for_chord$DiseaseModel, df_for_chord$TaskArea))))
 }
 
 # Create a named vector of colors
-category_colors <- tailwind_colors[1:length(unique(c(df_for_chord$DiseaseModel, df_for_chord$TaskArea)))]
+category_colors <- locus_zoom_colors[1:length(unique(c(df_for_chord$DiseaseModel, df_for_chord$TaskArea)))]
 names(category_colors) <- c(levels(df_for_chord$DiseaseModel), levels(df_for_chord$TaskArea))
 
 # Create the chord diagram and save it as a PNG file
-png("chord_diagram_tw.png", width = 2200, height = 2200, bg = "white")  # Adjust canvas size
+png("chord_diagram_locus_zoom.png", width = 2200, height = 2200, bg = "white")  # Adjust canvas size
 circos.clear()
 circos.par(
   gap.after = c(rep(1, nrow(chord_matrix) - 1), 15, rep(1, ncol(chord_matrix) - 1), 15),  # Reduce gaps between sectors
   start.degree = 90,
   track.margin = c(0.01, 0.01),  # Adjust the margin between tracks
-  canvas.xlim = c(-1, 1),  # Adjust the canvas limits to maximize white space usage
-  canvas.ylim = c(-1, 1)   # Adjust the canvas limits to maximize white space usage
+  canvas.xlim = c(-1.05, 1.05),  # Adjust the canvas limits to maximize white space usage
+  canvas.ylim = c(-1.05, 1.05)   # Adjust the canvas limits to maximize white space usage
 )
 chordDiagram(
   chord_matrix,
@@ -83,7 +81,7 @@ circos.track(
   panel.fun = function(x, y) {
     sector.name = get.cell.meta.data("sector.index")
     circos.text(CELL_META$xcenter, CELL_META$ylim[1] + 0.1, sector.name,  # Increase the distance between text and border
-                facing = "clockwise", niceFacing = TRUE, adj = c(0, 0.5), cex = 3, font = 2)  # Increase and bold text
+                facing = "clockwise", niceFacing = TRUE, adj = c(0, 0.5), cex = 4, font = 2)  # Increase and bold text
   },
   bg.border = NA
 )
@@ -93,47 +91,56 @@ dev.off()
 disease_counts <- df_for_chord %>%
   group_by(DiseaseModel) %>%
   summarise(TotalCount = sum(Count)) %>%
-  arrange(desc(TotalCount))
+  arrange(TotalCount)  # Sort in ascending order
 
 task_counts <- df_for_chord %>%
   group_by(TaskArea) %>%
   summarise(TotalCount = sum(Count)) %>%
-  arrange(desc(TotalCount))
+  arrange(TotalCount)  # Sort in ascending order
 
-# Reorder the data frames for plotting
-df_for_chord$DiseaseModel <- factor(df_for_chord$DiseaseModel, levels = disease_counts$DiseaseModel)
-df_for_chord$TaskArea <- factor(df_for_chord$TaskArea, levels = task_counts$TaskArea)
+# Create data frames for plotting
+df_disease <- df_for_chord %>%
+  group_by(DiseaseModel) %>%
+  summarise(Count = sum(Count))
+
+df_task <- df_for_chord %>%
+  group_by(TaskArea) %>%
+  summarise(Count = sum(Count))
 
 # Create and save bar plot for Disease Model
-bar_plot_disease <- ggplot(df_for_chord, aes(x = DiseaseModel, y = Count, fill = DiseaseModel)) +
-  geom_bar(stat = "identity") +
-  scale_fill_manual(values = setNames(tailwind_colors[1:length(unique(df_for_chord$DiseaseModel))], levels(df_for_chord$DiseaseModel))) +  # Use the defined colors for the bar plot
-  theme_minimal(base_size = 20) +  # Increase base font size further
+bar_plot_disease <- ggplot(df_disease, aes(x = reorder(DiseaseModel, Count), y = Count, fill = DiseaseModel)) +
+  geom_bar(stat = "identity", color = "black", size = 1, show.legend = FALSE) +  # Add black borders to bars and increase border thickness
+  scale_fill_manual(values = setNames(locus_zoom_colors[1:length(unique(df_disease$DiseaseModel))], levels(df_disease$DiseaseModel))) +  # Use the defined colors for the bar plot
+  theme_minimal(base_size = 25) +  # Increase base font size further
   theme(
     panel.background = element_rect(fill = "white", color = NA),  # White background
     plot.background = element_rect(fill = "white", color = NA),   # White background for entire plot
     panel.grid = element_blank(),  # Remove grid lines
-    axis.text = element_text(size = 20),  # Increase axis text size
-    axis.title = element_text(size = 22),  # Increase axis title size
-    legend.position = "none"
+    axis.text = element_text(size = 25),  # Increase axis text size
+    axis.title = element_text(size = 28),  # Increase axis title size
+    legend.position = "none",
+    axis.title.x = element_text(margin = margin(t = 20)),  # Increase margin between x-axis title and plot
+    axis.title.y = element_text(margin = margin(r = 20))   # Increase margin between y-axis title and plot
   ) +
   coord_flip() +
   labs(y = "Count", x = "Disease Model")
-ggsave("bar_plot_disease_model_tw.png", bar_plot_disease, width = 16, height = 12, bg = "white")
+ggsave("bar_plot_disease_model_locus_zoom.png", bar_plot_disease, width = 16, height = 12, bg = "white")
 
 # Create and save bar plot for AI/ML Task Area
-bar_plot_task <- ggplot(df_for_chord, aes(x = TaskArea, y = Count, fill = TaskArea)) +
-  geom_bar(stat = "identity") +
-  scale_fill_manual(values = setNames(tailwind_colors[1:length(unique(df_for_chord$TaskArea))], levels(df_for_chord$TaskArea))) +  # Use the defined colors for the bar plot
-  theme_minimal(base_size = 20) +  # Increase base font size further
+bar_plot_task <- ggplot(df_task, aes(x = reorder(TaskArea, Count), y = Count, fill = TaskArea)) +
+  geom_bar(stat = "identity", color = "black", size = 1, show.legend = FALSE) +  # Add black borders to bars and increase border thickness
+  scale_fill_manual(values = setNames(locus_zoom_colors[1:length(unique(df_task$TaskArea))], levels(df_task$TaskArea))) +  # Use the defined colors for the bar plot
+  theme_minimal(base_size = 25) +  # Increase base font size further
   theme(
     panel.background = element_rect(fill = "white", color = NA),  # White background
     plot.background = element_rect(fill = "white", color = NA),   # White background for entire plot
     panel.grid = element_blank(),  # Remove grid lines
-    axis.text = element_text(size = 20),  # Increase axis text size
-    axis.title = element_text(size = 22),  # Increase axis title size
-    legend.position = "none"
+    axis.text = element_text(size = 25),  # Increase axis text size
+    axis.title = element_text(size = 28),  # Increase axis title size
+    legend.position = "none",
+    axis.title.x = element_text(margin = margin(t = 20)),  # Increase margin between x-axis title and plot
+    axis.title.y = element_text(margin = margin(r = 20))   # Increase margin between y-axis title and plot
   ) +
   coord_flip() +
   labs(y = "Count", x = "AI/ML Task Area")
-ggsave("bar_plot_task_area_tw.png", bar_plot_task, width = 16, height = 12, bg = "white")
+ggsave("bar_plot_task_area_locus_zoom.png", bar_plot_task, width = 16, height = 12, bg = "white")
