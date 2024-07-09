@@ -12,12 +12,28 @@ const validatePhoneNumber = async (phone) => {
 };
 
 const createForm = async (req, res) => {
-  const { name, email, phone } = req.body;
+  const { name, email, phone, group } = req.body;
   const isValid = await validatePhoneNumber(phone);
-  const newForm = new Form({ name, email, phone, isValid });
+  const newForm = new Form({ name, email, phone, isValid, group });
   try {
     const savedForm = await newForm.save();
     res.status(201).json(savedForm);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
+const updateForm = async (req, res) => {
+  const { id } = req.params;
+  const { name, email, phone, group } = req.body;
+  const isValid = await validatePhoneNumber(phone);
+  try {
+    const updatedForm = await Form.findByIdAndUpdate(id, { name, email, phone, isValid, group }, { new: true });
+    if (updatedForm) {
+      res.json(updatedForm);
+    } else {
+      res.status(404).json({ message: 'Form not found' });
+    }
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
@@ -58,4 +74,4 @@ const deleteFormById = async (req, res) => {
   }
 };
 
-module.exports = { createForm, getFormById, getAllForms, deleteFormById };
+module.exports = { createForm, updateForm, getFormById, getAllForms, deleteFormById };

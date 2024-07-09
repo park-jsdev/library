@@ -1,37 +1,34 @@
 import React, { useState } from 'react';
+import axios from 'axios';
+import { TextField, Button, Container } from '@material-ui/core';
 
-const Form = ({ onSubmit }) => {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
+const Form = () => {
+  const [formData, setFormData] = useState({ name: '', email: '', phone: '', group: '' });
 
-  const handleSubmit = (e) => {
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    // Sanitize and validate input
-    const sanitizedPhone = phone.replace(/[^\d]/g, ''); // Remove non-numeric characters
-
-    if (sanitizedPhone.length < 10) {
-      alert("Phone number must be at least 10 digits long.");
-      return;
+    try {
+      const response = await axios.post(process.env.REACT_APP_BACKEND_URL, formData);
+      console.log('Form submitted successfully:', response.data);
+    } catch (error) {
+      console.error('Error submitting form:', error);
     }
-
-    const sanitizedEmail = email.trim();
-    const sanitizedName = name.trim();
-
-    onSubmit({ name: sanitizedName, email: sanitizedEmail, phone: sanitizedPhone });
-    setName('');
-    setEmail('');
-    setPhone('');
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Name" required />
-      <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" required />
-      <input type="text" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Phone" required />
-      <button type="submit">Submit</button>
-    </form>
+    <Container>
+      <form onSubmit={handleSubmit}>
+        <TextField name="name" label="Name" value={formData.name} onChange={handleChange} required />
+        <TextField name="email" label="Email" value={formData.email} onChange={handleChange} required />
+        <TextField name="phone" label="Phone" value={formData.phone} onChange={handleChange} required />
+        <TextField name="group" label="Group" value={formData.group} onChange={handleChange} required />
+        <Button type="submit" variant="contained" color="primary">Submit</Button>
+      </form>
+    </Container>
   );
 };
 
