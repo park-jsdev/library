@@ -1,93 +1,128 @@
-import React, { useState } from 'react';
-import { makeStyles } from '@material-ui/core/styles';
-import Container from '@material-ui/core/Container';
-import TextField from '@material-ui/core/TextField';
-import Button from '@material-ui/core/Button';
-import Snackbar from '@material-ui/core/Snackbar';
-import Alert from '@material-ui/lab/Alert';
-import axios from 'axios';
+import React from 'react';
+import { Container, Typography, Button, TextField, Grid, Box, MenuItem, Alert } from '@mui/material';
+import { makeStyles } from '@mui/styles';
+import { useForm, Controller } from 'react-hook-form';
 
 const useStyles = makeStyles((theme) => ({
-  formContainer: {
-    marginTop: theme.spacing(4),
+  formControl: {
+    margin: theme.spacing(1),
+    minWidth: 120,
   },
-  formItem: {
-    marginBottom: theme.spacing(2),
+  selectEmpty: {
+    marginTop: theme.spacing(2),
+  },
+  form: {
+    marginTop: theme.spacing(3),
+  },
+  submit: {
+    margin: theme.spacing(3, 0, 2),
   },
 }));
 
 const FormPage = () => {
   const classes = useStyles();
-  const [formData, setFormData] = useState({ name: '', email: '', phone: '', group: '' });
-  const [snackbar, setSnackbar] = useState({ open: false, severity: 'success', message: '' });
+  const { handleSubmit, control, reset } = useForm();
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const onSubmit = async (data) => {
     try {
-      await axios.post('http://localhost:5000/api/forms', formData);
-      setSnackbar({ open: true, severity: 'success', message: 'Form submitted successfully' });
-      setFormData({ name: '', email: '', phone: '', group: '' });
+      const response = await fetch('http://localhost:5000/api/forms', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+      const result = await response.json();
+      alert('Form submitted successfully');
+      reset();
     } catch (error) {
-      setSnackbar({ open: true, severity: 'error', message: 'Form submission failed' });
+      console.error('Error:', error);
     }
   };
 
-  const handleSnackbarClose = () => {
-    setSnackbar({ ...snackbar, open: false });
-  };
-
   return (
-    <Container maxWidth="sm" className={classes.formContainer}>
-      <form onSubmit={handleSubmit}>
-        <TextField
+    <Container component="main" maxWidth="xs">
+      <Typography component="h1" variant="h5">
+        Contact Management Dashboard
+      </Typography>
+      <form className={classes.form} noValidate onSubmit={handleSubmit(onSubmit)}>
+        <Grid container spacing={2}>
+          <Grid item xs={12}>
+            <Controller
+              name="name"
+              control={control}
+              defaultValue=""
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  variant="outlined"
+                  required
+                  fullWidth
+                  label="Name"
+                  autoFocus
+                />
+              )}
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <Controller
+              name="email"
+              control={control}
+              defaultValue=""
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  variant="outlined"
+                  required
+                  fullWidth
+                  label="Email"
+                />
+              )}
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <Controller
+              name="phone"
+              control={control}
+              defaultValue=""
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  variant="outlined"
+                  required
+                  fullWidth
+                  label="Phone"
+                />
+              )}
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <Controller
+              name="group"
+              control={control}
+              defaultValue=""
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  variant="outlined"
+                  required
+                  fullWidth
+                  label="Group"
+                />
+              )}
+            />
+          </Grid>
+        </Grid>
+        <Button
+          type="submit"
           fullWidth
-          className={classes.formItem}
-          label="Name"
-          name="name"
-          value={formData.name}
-          onChange={handleChange}
-          required
-        />
-        <TextField
-          fullWidth
-          className={classes.formItem}
-          label="Email"
-          name="email"
-          value={formData.email}
-          onChange={handleChange}
-          required
-        />
-        <TextField
-          fullWidth
-          className={classes.formItem}
-          label="Phone"
-          name="phone"
-          value={formData.phone}
-          onChange={handleChange}
-          required
-        />
-        <TextField
-          fullWidth
-          className={classes.formItem}
-          label="Group"
-          name="group"
-          value={formData.group}
-          onChange={handleChange}
-          required
-        />
-        <Button variant="contained" color="primary" type="submit">
+          variant="contained"
+          color="primary"
+          className={classes.submit}
+        >
           Submit
         </Button>
       </form>
-      <Snackbar open={snackbar.open} autoHideDuration={6000} onClose={handleSnackbarClose}>
-        <Alert onClose={handleSnackbarClose} severity={snackbar.severity}>
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
     </Container>
   );
 };

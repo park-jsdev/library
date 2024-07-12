@@ -1,90 +1,73 @@
-import React, { useState, useEffect } from 'react';
-import { makeStyles } from '@material-ui/core/styles';
-import Container from '@material-ui/core/Container';
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-import TableContainer from '@material-ui/core/TableContainer';
-import TableHead from '@material-ui/core/TableHead';
-import TableRow from '@material-ui/core/TableRow';
-import Paper from '@material-ui/core/Paper';
-import Button from '@material-ui/core/Button';
-import TextField from '@material-ui/core/TextField';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-
-const useStyles = makeStyles((theme) => ({
-  table: {
-    minWidth: 650,
-  },
-  formContainer: {
-    marginTop: theme.spacing(4),
-  },
-  formItem: {
-    marginBottom: theme.spacing(2),
-  },
-}));
+import {
+  Container,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TextField,
+  Button,
+} from '@mui/material';
 
 const ViewRecordsPage = () => {
-  const classes = useStyles();
   const [records, setRecords] = useState([]);
-  const [search, setSearch] = useState({ group: '', countryCode: '' });
+  const [search, setSearch] = useState('');
+  const [filter, setFilter] = useState('');
 
   useEffect(() => {
-    fetchRecords();
+    axios
+      .get('http://localhost:5000/api/forms')
+      .then((response) => {
+        setRecords(response.data);
+      })
+      .catch((error) => {
+        console.error('There was an error fetching the records!', error);
+      });
   }, []);
 
-  const fetchRecords = async () => {
-    try {
-      const response = await axios.get('http://localhost:5000/api/forms');
-      setRecords(response.data);
-    } catch (error) {
-      console.error('Error fetching records:', error);
-    }
-  };
-
-  const handleDelete = async (id) => {
-    try {
-      await axios.delete(`http://localhost:5000/api/forms/${id}`);
-      setRecords(records.filter((record) => record._id !== id));
-    } catch (error) {
-      console.error('Error deleting record:', error);
-    }
-  };
-
-  const handleSearchChange = (e) => {
-    setSearch({ ...search, [e.target.name]: e.target.value });
+  const handleDelete = (id) => {
+    axios
+      .delete(`http://localhost:5000/api/forms/${id}`)
+      .then(() => {
+        setRecords(records.filter((record) => record._id !== id));
+      })
+      .catch((error) => {
+        console.error('There was an error deleting the record!', error);
+      });
   };
 
   const filteredRecords = records.filter(
     (record) =>
-      (!search.group || record.group.toLowerCase().includes(search.group.toLowerCase())) &&
-      (!search.countryCode || record.phone.startsWith(search.countryCode))
+      record.name.toLowerCase().includes(search.toLowerCase()) &&
+      record.group.toLowerCase().includes(filter.toLowerCase())
   );
 
   return (
-    <Container maxWidth="lg" className={classes.formContainer}>
+    <Container>
       <TextField
-        className={classes.formItem}
+        label="Search by Name"
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        style={{ marginBottom: 20 }}
+      />
+      <TextField
         label="Filter by Group"
-        name="group"
-        value={search.group}
-        onChange={handleSearchChange}
+        value={filter}
+        onChange={(e) => setFilter(e.target.value)}
+        style={{ marginBottom: 20, marginLeft: 10 }}
       />
-      <TextField
-        className={classes.formItem}
-        label="Filter by Country Code"
-        name="countryCode"
-        value={search.countryCode}
-        onChange={handleSearchChange}
-      />
-      <TableContainer component={Paper}>
-        <Table className={classes.table} aria-label="simple table">
+      <TableContainer>
+        <Table>
           <TableHead>
             <TableRow>
               <TableCell>Name</TableCell>
               <TableCell>Email</TableCell>
               <TableCell>Phone</TableCell>
               <TableCell>Group</TableCell>
+              <TableCell>Valid</TableCell>
               <TableCell>Actions</TableCell>
             </TableRow>
           </TableHead>
@@ -95,6 +78,7 @@ const ViewRecordsPage = () => {
                 <TableCell>{record.email}</TableCell>
                 <TableCell>{record.phone}</TableCell>
                 <TableCell>{record.group}</TableCell>
+                <TableCell>{record.isValid ? 'Yes' : 'No'}</TableCell>
                 <TableCell>
                   <Button color="secondary" onClick={() => handleDelete(record._id)}>
                     Delete
