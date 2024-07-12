@@ -1,95 +1,67 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { Box, TextField, Button, Typography, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import axios from 'axios';
-import {
-  Container,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  TextField,
-  Button,
-} from '@mui/material';
+import ContactList from './ContactList';
+import { CSVLink } from 'react-csv';
 
 const ViewRecordsPage = () => {
-  const [records, setRecords] = useState([]);
-  const [search, setSearch] = useState('');
-  const [filter, setFilter] = useState('');
+  const [contacts, setContacts] = useState([]);
+  const [searchName, setSearchName] = useState('');
+  const [filterGroup, setFilterGroup] = useState('');
+  const [groups, setGroups] = useState([]);
 
   useEffect(() => {
-    axios
-      .get('http://localhost:5000/api/forms')
-      .then((response) => {
-        setRecords(response.data);
-      })
-      .catch((error) => {
-        console.error('There was an error fetching the records!', error);
-      });
+    fetchContacts();
   }, []);
 
-  const handleDelete = (id) => {
-    axios
-      .delete(`http://localhost:5000/api/forms/${id}`)
-      .then(() => {
-        setRecords(records.filter((record) => record._id !== id));
-      })
-      .catch((error) => {
-        console.error('There was an error deleting the record!', error);
-      });
+  const fetchContacts = async () => {
+    const response = await axios.get('/api/forms');
+    setContacts(response.data);
+    const uniqueGroups = [...new Set(response.data.map(contact => contact.group))];
+    setGroups(uniqueGroups);
   };
 
-  const filteredRecords = records.filter(
-    (record) =>
-      record.name.toLowerCase().includes(search.toLowerCase()) &&
-      record.group.toLowerCase().includes(filter.toLowerCase())
-  );
+  const handleSearchName = (e) => {
+    setSearchName(e.target.value);
+  };
+
+  const handleFilterGroup = (e) => {
+    setFilterGroup(e.target.value);
+  };
 
   return (
-    <Container>
-      <TextField
-        label="Search by Name"
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        style={{ marginBottom: 20 }}
-      />
-      <TextField
-        label="Filter by Group"
-        value={filter}
-        onChange={(e) => setFilter(e.target.value)}
-        style={{ marginBottom: 20, marginLeft: 10 }}
-      />
-      <TableContainer>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Name</TableCell>
-              <TableCell>Email</TableCell>
-              <TableCell>Phone</TableCell>
-              <TableCell>Group</TableCell>
-              <TableCell>Valid</TableCell>
-              <TableCell>Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {filteredRecords.map((record) => (
-              <TableRow key={record._id}>
-                <TableCell>{record.name}</TableCell>
-                <TableCell>{record.email}</TableCell>
-                <TableCell>{record.phone}</TableCell>
-                <TableCell>{record.group}</TableCell>
-                <TableCell>{record.isValid ? 'Yes' : 'No'}</TableCell>
-                <TableCell>
-                  <Button color="secondary" onClick={() => handleDelete(record._id)}>
-                    Delete
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-    </Container>
+    <Box className="container">
+      <Box className="header">
+        <Typography variant="h4">Contact Management Dashboard</Typography>
+      </Box>
+      <Box className="navbar">
+        <a href="/add-new-contact">Add New Contact</a>
+        <a href="/view-contacts">View Contacts</a>
+      </Box>
+      <Box className="form-container">
+        <Box className="page-title">
+          <Typography variant="h5">View Contacts</Typography>
+        </Box>
+        <Box className="search-filter-container">
+          <TextField label="Search by Name" variant="outlined" value={searchName} onChange={handleSearchName} />
+          <FormControl variant="outlined">
+            <InputLabel>Filter Group</InputLabel>
+            <Select value={filterGroup} onChange={handleFilterGroup}>
+              <MenuItem value="">
+                <em>None</em>
+              </MenuItem>
+              {groups.map((group, index) => (
+                <MenuItem key={index} value={group}>{group}</MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          <Button variant="contained" color="primary">
+            <CSVLink data={contacts} filename="contacts.csv" className="btn">Export to CSV</CSVLink>
+          </Button>
+        </Box>
+        <ContactList contacts={contacts} searchName={searchName} filterGroup={filterGroup} />
+      </Box>
+    </Box>
   );
 };
 

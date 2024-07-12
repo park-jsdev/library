@@ -1,60 +1,32 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
-import { Container, AppBar, Toolbar, Typography, Menu, MenuItem, IconButton } from '@mui/material';
-import MenuIcon from '@mui/icons-material/Menu';
+import { Box, AppBar, Toolbar, Button, Typography } from '@mui/material';
 import FormPage from './components/FormPage';
 import ViewRecordsPage from './components/ViewRecordsPage';
 
-const App = () => {
-  const [anchorEl, setAnchorEl] = React.useState(null);
-
-  const handleMenuClick = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleMenuClose = () => {
-    setAnchorEl(null);
-  };
-
+function App() {
   return (
     <Router>
-      <Container>
+      <Box>
         <AppBar position="static">
           <Toolbar>
             <Typography variant="h6" style={{ flexGrow: 1 }}>
               Contact Management Dashboard
             </Typography>
-            <IconButton
-              edge="start"
-              color="inherit"
-              aria-label="menu"
-              onClick={handleMenuClick}
-            >
-              <MenuIcon />
-            </IconButton>
-            <Menu
-              id="simple-menu"
-              anchorEl={anchorEl}
-              keepMounted
-              open={Boolean(anchorEl)}
-              onClose={handleMenuClose}
-            >
-              <MenuItem onClick={handleMenuClose} component="a" href="/">
-                Add Contact
-              </MenuItem>
-              <MenuItem onClick={handleMenuClose} component="a" href="/view-records">
-                View Contacts
-              </MenuItem>
-            </Menu>
+            <Button color="inherit" href="/add-new-contact">Add New Contact</Button>
+            <Button color="inherit" href="/view-contacts">View Contacts</Button>
           </Toolbar>
         </AppBar>
-        <Switch>
-          <Route exact path="/" component={FormPage} />
-          <Route path="/view-records" component={ViewRecordsPage} />
-        </Switch>
-      </Container>
+        <Box style={{ padding: '20px' }}>
+          <Switch>
+            <Route path="/add-new-contact" component={FormPage} />
+            <Route path="/view-contacts" component={ViewRecordsPage} />
+            <Route exact path="/" component={FormPage} />
+          </Switch>
+        </Box>
+      </Box>
     </Router>
   );
-};
+}
 
 export default App;

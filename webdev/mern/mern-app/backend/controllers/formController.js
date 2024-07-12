@@ -4,22 +4,36 @@ const Form = require('../models/Form');
 const validatePhoneNumber = async (phone) => {
   try {
     const response = await axios.get(`http://apilayer.net/api/validate?access_key=${process.env.NUMVERIFY_API_KEY}&number=${phone}`);
-    return response.data.valid;
+    return response.data;
   } catch (error) {
     console.error('Error validating phone number:', error);
-    return false;
+    return null;
   }
 };
 
 const createForm = async (req, res) => {
-  const { name, email, phone, group } = req.body;
-  const isValid = await validatePhoneNumber(phone);
-  const newForm = new Form({ name, email, phone, group, isValid });
-  try {
-    const savedForm = await newForm.save();
-    res.status(201).json(savedForm);
-  } catch (error) {
-    res.status(400).json({ error: error.message });
+  const { name, email, phone, socialMedia, group } = req.body;
+  const validationResponse = await validatePhoneNumber(phone);
+
+  if (validationResponse && validationResponse.valid) {
+    const newForm = new Form({
+      name,
+      email,
+      phone,
+      socialMedia,
+      group,
+      country: validationResponse.country_name,
+      carrier: validationResponse.carrier,
+      lineType: validationResponse.line_type,
+    });
+    try {
+      const savedForm = await newForm.save();
+      res.status(201).json(savedForm);
+    } catch (error) {
+      res.status(400).json({ error: error.message });
+    }
+  } else {
+    res.status(400).json({ error: 'Invalid phone number' });
   }
 };
 
@@ -59,10 +73,13 @@ const deleteFormById = async (req, res) => {
 };
 
 const updateFormById = async (req, res) => {
-  const { name, email, phone, group } = req.body;
-  const isValid = await validatePhoneNumber(phone);
+  const { name, email, socialMedia, group } = req.body;
   try {
-    const updatedForm = await Form.findByIdAndUpdate(req.params.id, { name, email, phone, group, isValid }, { new: true });
+    const updatedForm = await Form.findByIdAndUpdate(
+      req.params.id,
+      { name, email, socialMedia, group },
+      { new: true, runValidators: true }
+    );
     if (updatedForm) {
       res.json(updatedForm);
     } else {
