@@ -1,41 +1,38 @@
 pipeline {
     agent any
+
     environment {
+        DOCKER_HUB_CREDENTIALS = credentials('docker-hub-credentials')
         REGISTRY = "parkjsdev3232"
-        IMAGE_TAG = "latest"
+        NUMVERIFY_API_KEY = credentials('numverify-api-key')
     }
+
     stages {
-        stage('Checkout') {
+        stage('Clone Repository') {
             steps {
-                git 'https://github.com/park-jsdev/phone-validator.git'
+                git branch: 'main', url: 'https://github.com/park-jsdev/phone-validator'
             }
         }
-        stages {
-        stage('Build') {
+        stage('Build and Push Docker Images') {
             steps {
                 script {
-                    docker.build("${REGISTRY}/frontend:${IMAGE_TAG}", "./mern-app/frontend")
-                    docker.build("${REGISTRY}/backend:${IMAGE_TAG}", "./mern-app/backend")
-                }
-            }
-        }
-        stage('Push') {
-            steps {
-                script {
-                    docker.withRegistry('', 'docker-hub-credentials') {
-                        docker.image("${REGISTRY}/frontend:${IMAGE_TAG}").push()
-                        docker.image("${REGISTRY}/backend:${IMAGE_TAG}").push()
+                    docker.withRegistry('', env.DOCKER_HUB_CREDENTIALS) {
+                        def frontendImage = docker.build("${env.REGISTRY}/frontend:latest", "./frontend")
+                        def backendImage = docker.build("${env.REGISTRY}/backend:latest", "./backend")
+                        frontendImage.push()
+                        backendImage.push()
                     }
                 }
             }
         }
-        stage('Deploy') {
+        stage('Deploy with Docker Compose') {
             steps {
-                kubernetesDeploy(
-                    configs: 'k8s-deployment.yaml',
-                    kubeconfigId: 'k8s-token',
-                    secretName: 'jenkins-token'
-                )
+                script {
+                    sh 'docker-compose down'
+                    sh """
+                    NUMVERIFY_API_KEY=${env.NUMVERIFY_API_KEY} docker-compose up -d
+                    """
+                }
             }
         }
     }

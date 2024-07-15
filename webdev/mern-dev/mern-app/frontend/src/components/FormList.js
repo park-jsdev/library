@@ -5,7 +5,7 @@ import './FormList.css';
 const FormList = ({ forms, onDelete }) => {
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`${process.env.REACT_APP_BACKEND_URL}/${id}`);
+      await axios.delete(`http://localhost:5000/api/contacts/${id}`);
       onDelete(id);
     } catch (error) {
       console.error('Error deleting contact:', error);

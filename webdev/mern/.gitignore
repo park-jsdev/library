@@ -5,9 +5,3 @@ node_modules/
 logs
 *.log
 npm-debug.log*
-
-# Environment variables
-.env
-backend/.env
-frontend/.env
-numverify-secret.yaml

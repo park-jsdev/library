@@ -16,7 +16,7 @@ const ViewRecordsPage = () => {
 
   const fetchContacts = async () => {
     try {
-      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}`);
+      const response = await axios.get('http://localhost:5000/api/contacts');
       setContacts(response.data);
       const uniqueGroups = [...new Set(response.data.map(contact => contact.group))];
       setGroups(uniqueGroups);

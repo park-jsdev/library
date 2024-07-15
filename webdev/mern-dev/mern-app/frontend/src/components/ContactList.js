@@ -5,7 +5,7 @@ import axios from 'axios';
 const ContactList = ({ contacts, setContacts }) => {
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`${process.env.REACT_APP_BACKEND_URL}/${id}`);
+      await axios.delete(`http://localhost:5000/api/contacts/${id}`);
       setContacts(contacts.filter(contact => contact._id !== id));
     } catch (error) {
       console.error('Failed to delete contact', error);
