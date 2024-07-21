@@ -31,9 +31,9 @@ df_for_heatmap <- as.data.frame(data_filled)
 
 # Create a custom color gradient
 custom_gradient <- scale_fill_gradientn(
-  colors = c("lightblue", "skyblue", "deepskyblue", "blue"),
+  colors = c("lightskyblue", "skyblue", "deepskyblue", "blue"),
   values = c(0, 0.5, 0.8, 1),
-  na.value = "lightblue",
+  na.value = "lightskyblue",
   name = "Average Result"
 )
 
@@ -46,14 +46,14 @@ heatmap_plot <- ggplot(df_for_heatmap, aes(x = `Evaluation Metric`, y = `AI/ML T
   theme(
     axis.text.x = element_text(angle = 45, hjust = 1, size = 24, face = "bold", color = "black"),
     axis.text.y = element_text(size = 24, face = "bold", color = "black"),
-    axis.title.x = element_text(size = 28, face = "bold", color = "black"),
-    axis.title.y = element_text(size = 28, face = "bold", color = "black"),
-    plot.title = element_text(size = 30, face = "bold", color = "black"),
-    legend.text = element_text(size = 18, face = "bold", color = "black"),  # Increase legend text size
-    legend.title = element_text(size = 20, face = "bold", color = "black")  # Increase legend title size
-  )
+    axis.title.x = element_text(size = 32, face = "bold", color = "black"),
+    axis.title.y = element_text(size = 32, face = "bold", color = "black"),
+    plot.title = element_text(size = 35, face = "bold", color = "black"),
+    legend.text = element_text(size = 18, face = "bold", color = "black"),
+    legend.title = element_text(size = 20, face = "bold", color = "black", margin = margin(b = 20))
+  ) +
+  guides(fill = guide_colorbar(barwidth = 1, barheight = 20))
 
-# Save Heatmap
 ggsave("heatmap_evaluation_plot.png", heatmap_plot, width = 20, height = 12, bg = "white")
 
 # Display the plot
