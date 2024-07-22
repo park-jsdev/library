@@ -41,7 +41,8 @@ custom_gradient <- scale_fill_gradientn(
 heatmap_plot <- ggplot(df_for_heatmap, aes(x = `Evaluation Metric`, y = `AI/ML Technique`, fill = `Averaged Standardized Results`)) +
   geom_tile(color = "white") +
   custom_gradient +
-  labs(title = "Heatmap of AI/ML Techniques vs. Evaluation Metrics", x = "Evaluation Metric", y = "AI/ML Technique", fill = "Average Result") +
+  # labs(title = "Heatmap of AI/ML Techniques vs. Evaluation Metrics", x = "Evaluation Metric", y = "AI/ML Technique", fill = "Average Result") +
+  labs(x = "Evaluation Metric", y = "AI/ML Technique", fill = "Average Result") +
   theme_minimal() +
   theme(
     axis.text.x = element_text(angle = 45, hjust = 1, size = 24, face = "bold", color = "black"),
