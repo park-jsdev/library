@@ -1,26 +1,22 @@
 class Solution {
     public int[] asteroidCollision(int[] asteroids) {
         Stack<Integer> s = new Stack<>();
-        int n = asteroids.length;
-
-        for (int i=0;i<n;i++){
-            if (asteroids[i] > 0 || s.isEmpty()){ // positive or first
-                s.push(asteroids[i]);
-            } else { // negative asteroids
-                while (!s.isEmpty() && s.peek() > 0 && s.peek() < Math.abs(asteroids[i])){
-                    s.pop(); // if there is a positive at the top which is smaller, pop it
+        for (int i: asteroids){
+            if (i > 0){ // i is positive
+                s.push(i);
+            } else {
+                while (!s.isEmpty() && s.peek() > 0 && s.peek() < Math.abs(i)){ // last asteroid is positive but smaller
+                    s.pop();
                 }
-                if (s.isEmpty() || s.peek() < 0){ // if empty or 2 negatives
-                    s.push(asteroids[i]);
-                } else if (asteroids[i] + s.peek() == 0){ // if they are equal
+                if (s.isEmpty() || s.peek() < 0){ // both are negative or stack is empty (no more positives)
+                    s.push(i); // no collision can happen if curr is negative and next is positive so push it.
+                } else if (i + s.peek() == 0){ // they are equal
                     s.pop();
                 }
             }
         }
-        
         int[] res = new int[s.size()];
-        
-        for (int i=s.size()-1;i>=0;i--){
+        for (int i=res.length-1;i>=0;i--){
             res[i] = s.pop();
         }
         return res;
