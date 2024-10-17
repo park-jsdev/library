@@ -1,36 +1,28 @@
 class Solution {
     public String reorganizeString(String s) {
-        int[] hash = new int[26];
-        for (int i=0;i<s.length();i++){
-            hash[s.charAt(i) - 'a']++;
+        HashMap<Character, Integer> freqMap = new HashMap<>();
+        for (char c : s.toCharArray()){
+            freqMap.put(c, freqMap.getOrDefault(c, 0) + 1);
         }
-        int max = 0, letter = 0;
-        for (int i=0;i<hash.length;i++){
-            if (hash[i] > max){
-                max = hash[i];
-                letter = i;
-            }
-        }
-        if (max > (s.length()+1)/2){ // short circuit
+
+        PriorityQueue<Character> maxHeap = new PriorityQueue<>((a, b) -> freqMap.get(b) - freqMap.get(a));
+        maxHeap.addAll(freqMap.keySet());
+
+        if (freqMap.get(maxHeap.peek()) > (s.length() + 1)/2){
             return "";
         }
-        char[] res = new char[s.length()];
-        int idx = 0;
-        while (hash[letter]>0){
-            res[idx] = (char)(letter+'a');
-            idx += 2;
-            hash[letter]--;
-        }
-        for (int i=0;i<hash.length;i++){
-            while (hash[i]>0){
-                if (idx>=res.length){
-                    idx = 1;
-                }
-                res[idx] = (char)(i+'a');
-                idx+=2;
-                hash[i]--;
+
+        StringBuilder res = new StringBuilder();
+        char[] result = new char[s.length()];
+        int i = 0;
+        while (!maxHeap.isEmpty()){
+            char c = maxHeap.poll();
+            for (int j=0;j<freqMap.get(c);j++){
+                if (i >= s.length()) i = 1;
+                result[i] = c;
+                i += 2;
             }
         }
-        return String.valueOf(res);
+        return new String(result);
     }
 }
